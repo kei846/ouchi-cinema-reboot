@@ -1,0 +1,18 @@
+
+> ouchi-cinema-reboot@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use by process 17041, using available port 3001 instead.
+   ▲ Next.js 15.5.2 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.128.193:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 16.8s
+ GET / 200 in 20065ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1318ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 1850ms
