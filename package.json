@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@portabletext/react": "^4.0.1",
+    "bootstrap": "^5.3.8",
+    "geist": "^1.4.2",
     "next": "15.5.2",
     "next-sanity": "^10.0.15",
     "react": "19.1.0",

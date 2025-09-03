@@ -16,3 +16,17 @@
  ○ Compiling /favicon.ico ...
  ✓ Compiled /favicon.ico in 1318ms
  GET /favicon.ico?favicon.0b3bf435.ico 200 in 1850ms
+ ○ Compiling /posts/[slug] ...
+ ✓ Compiled /posts/[slug] in 3.8s
+Error: Route "/posts/[slug]" used `params.slug`. `params` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at PostPage (src/app/posts/[slug]/page.tsx:14:37)
+  12 |
+  13 | export default async function PostPage({ params }: { params: { slug: string } }) {
+> 14 |   const post = await getPost(params.slug);
+     |                                     ^
+  15 |
+  16 |   return (
+  17 |     <main className="flex min-h-screen flex-col items-center p-8 md:p-16 lg:p-24">
+ GET /posts/gifted-movie-review-2025 200 in 8895ms
+ GET / 200 in 2708ms
+[?25h

@@ -1,41 +1,50 @@
 import { client } from "@/sanity/client";
-import Link from "next/link"; // ← これを追加
+import Link from "next/link";
 
-// Sanityから受け取る記事データの「型」を決めとく
-type Post = {
+interface Article {
   _id: string;
   title: string;
-  slug: string; // ← これを追加
-};
+  slug: string;
+}
 
-// Sanityから記事データを取得する関数
-async function getPosts() {
-  const query = `*[_type == "post"]{_id, title, "slug": slug.current}`;
-  const data = await client.fetch<Post[]>(query);
-  return data;
+async function getArticles() {
+  // The 'excerpt' field was removed as it doesn't seem to exist.
+  // Consider adding an 'excerpt' text field to your 'post' schema in Sanity for a better summary.
+  const query = `*[_type == "post"]{
+    _id,
+    title,
+    "slug": slug.current
+  }`;
+  const articles = await client.fetch<Article[]>(query);
+  return articles;
 }
 
 export default async function Home() {
-  const posts = await getPosts();
+  const articles = await getArticles();
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      <header className="w-full max-w-5xl text-center mb-12">
-        <h1 className="text-5xl font-bold">OUCHI-CINEMA</h1>
+    <div>
+      <header className="bg-dark text-white text-center p-3 mb-4">
+        <h1>OUCHI-CINEMA</h1>
       </header>
-
-      <section className="w-full max-w-5xl">
-        <h2 className="text-3xl font-bold mb-4">記事一覧</h2>
-        <ul>
-          {posts.map((post) => (
-            <li key={post._id} className="text-xl mb-2 hover:text-amber-400 transition-colors">
-              <Link href={`/posts/${post.slug}`}>
-                {post.title}
-              </Link>
-            </li>
+      <main className="container">
+        <h2 className="mb-4">記事一覧</h2>
+        <div className="row">
+          {articles.map((article) => (
+            <div className="col-md-4 mb-4" key={article._id}>
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{article.title}</h5>
+                  {/* <p className="card-text">{article.excerpt}</p> */}
+                  <Link href={`/posts/${article.slug}`} className="btn btn-primary">
+                    続きを読む
+                  </Link>
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
-      </section>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }
