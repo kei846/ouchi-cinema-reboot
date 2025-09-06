@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@portabletext/react": "^4.0.1",
+    "@sanity/image-url": "^1.2.0",
     "bootstrap": "^5.3.8",
     "geist": "^1.4.2",
     "next": "15.5.2",
