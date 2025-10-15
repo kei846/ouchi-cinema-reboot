@@ -17,7 +17,7 @@ text-white relative"
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* 24風タイトル（スマホでも1行固定） */}
+      {/* タイトル：24風、常に1行中央表示 */}
       <motion.h1
         className="font-bold uppercase text-[1.8rem] sm:text-[2.5rem] md:text-[4rem] 
 tracking-tight text-yellow-400 whitespace-nowrap text-center"
@@ -33,7 +33,7 @@ tracking-tight text-yellow-400 whitespace-nowrap text-center"
         CHOOSE YOUR NIGHT
       </motion.h1>
 
-      {/* 選択エリア */}
+      {/* 選択ボタン */}
       <motion.div
         className="text-center text-gray-300 text-lg mt-8"
         initial={{ opacity: 0 }}
@@ -52,7 +52,7 @@ hover:text-black transition-all duration-300">
         </div>
       </motion.div>
 
-      {/* ▼ トップページに戻るボタン */}
+      {/* ▼ トップページに戻る */}
       <motion.div
         className="absolute bottom-10"
         initial={{ opacity: 0 }}
