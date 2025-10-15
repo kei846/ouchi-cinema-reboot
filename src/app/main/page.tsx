@@ -17,10 +17,10 @@ text-white relative"
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* 24風タイトル */}
+      {/* 24風タイトル（スマホでも1行固定） */}
       <motion.h1
-        className="font-bold uppercase text-[3rem] md:text-[5rem] tracking-tight 
-text-yellow-400"
+        className="font-bold uppercase text-[1.8rem] sm:text-[2.5rem] md:text-[4rem] 
+tracking-tight text-yellow-400 whitespace-nowrap text-center"
         style={{
           textShadow:
             '0 0 5px #FFD700, 0 0 10px #FFD700, 0 0 20px #FFA500',
@@ -64,7 +64,7 @@ hover:text-black transition-all duration-300">
           className={`${orbitron.className} border border-gray-500 px-5 py-2 rounded-md 
 text-sm text-gray-300 hover:bg-white hover:text-black transition-all duration-300`}
         >
-          ⬆TOP
+          TOP
         </Link>
       </motion.div>
     </motion.div>

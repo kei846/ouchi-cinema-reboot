@@ -54,12 +54,11 @@ export default function Opening() {
       transition={{ duration: 1.2, ease: 'easeInOut' }}
     >
       <motion.h1
-        className={`${orbitron.className} font-bold text-[4rem] md:text-[6rem] 
-tracking-[0.25em] text-white`}
+        className={`${orbitron.className} font-bold text-[2.2rem] sm:text-[3rem] 
+md:text-[5rem] tracking-[0.15em] text-white whitespace-nowrap text-center`}
         style={{
           textShadow:
             '0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(100,150,255,0.8)',
-          letterSpacing: '0.15em',
         }}
       >
         {displayText}
