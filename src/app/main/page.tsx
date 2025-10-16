@@ -60,7 +60,7 @@ hover:text-black transition-all duration-300">
         transition={{ delay: 1.8, duration: 1 }}
       >
         <Link
-          href="/"
+          href="/top"
           className={`${orbitron.className} border border-gray-500 px-5 py-2 rounded-md 
 text-sm text-gray-300 hover:bg-white hover:text-black transition-all duration-300`}
         >
