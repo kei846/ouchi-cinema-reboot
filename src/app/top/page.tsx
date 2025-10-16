@@ -38,8 +38,8 @@ opacity-70"></div>
       <section className="flex flex-col items-center justify-center text-center h-[70vh] 
 z-10">
         <motion.h2
-          className={`${orbitron.className} text-yellow-400 text-[2rem] md:text-[4rem] 
-tracking-[0.2em] whitespace-nowrap`}
+          className={`${orbitron.className} text-yellow-400 text-[1.6rem] 
+sm:text-[2.5rem] md:text-[4rem] tracking-[0.2em] whitespace-nowrap text-center`}
           style={{
             textShadow: '0 0 5px #FFD700, 0 0 15px #FFA500',
           }}
