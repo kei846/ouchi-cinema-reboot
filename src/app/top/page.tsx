@@ -1,9 +1,9 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import Link from 'next/link';
 import { Orbitron } from 'next/font/google';
 
-// フォントを安定ロード（swapで一瞬の文字化け防止）
+// フォントを安定ロード
 const orbitron = Orbitron({
   subsets: ['latin'],
   weight: ['400', '700'],
@@ -11,14 +11,14 @@ const orbitron = Orbitron({
 });
 
 // motion animation pattern
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: (i: number = 0) => ({
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.9,
-      ease: ['easeOut'],
+      ease: 'easeOut', // ← 修正：string 単体でOK
       delay: 0.12 * i,
     },
   }),
@@ -33,7 +33,7 @@ from-[#05060a] via-[#0a0b12] to-black" />
       <div className="pointer-events-none absolute inset-0 
 [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)] opacity-80" />
 
-      {/* 粒子ノイズ（擬似） */}
+      {/* 粒子ノイズ */}
       <div
         className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-20"
         style={{
