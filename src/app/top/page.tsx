@@ -3,14 +3,12 @@ import { motion, Variants } from 'framer-motion';
 import Link from 'next/link';
 import { Orbitron } from 'next/font/google';
 
-// フォントを安定ロード
 const orbitron = Orbitron({
   subsets: ['latin'],
   weight: ['400', '700'],
   display: 'swap',
 });
 
-// motion animation pattern
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: (i: number = 0) => ({
@@ -18,7 +16,7 @@ const fadeUp: Variants = {
     y: 0,
     transition: {
       duration: 0.9,
-      ease: 'easeOut', // ← 修正：string 単体でOK
+      ease: 'easeOut',
       delay: 0.12 * i,
     },
   }),
@@ -27,27 +25,25 @@ const fadeUp: Variants = {
 export default function TopPage() {
   return (
     <main className="relative min-h-screen bg-black text-white overflow-clip">
-      {/* --- Background Layers --- */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b 
-from-[#05060a] via-[#0a0b12] to-black" />
-      <div className="pointer-events-none absolute inset-0 
-[mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_100%)] opacity-80" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#05060a] via-[#0a0b12] 
+to-black pointer-events-none" />
 
-      {/* 粒子ノイズ */}
+      {/* Subtle Noise */}
       <div
-        className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-20"
+        className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-15"
         style={{
           backgroundImage: `repeating-linear-gradient(
             0deg,
-            rgba(255,255,255,.03) 0,
-            rgba(255,255,255,.03) 1px,
+            rgba(255,255,255,.02) 0,
+            rgba(255,255,255,.02) 1px,
             transparent 1px,
             transparent 2px
           )`,
         }}
       />
 
-      {/* --- Header --- */}
+      {/* Header */}
       <header className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 py-5 flex 
 items-center justify-between">
         <Link
@@ -70,19 +66,20 @@ md:text-lg text-white/90 hover:text-white transition`}
         </nav>
       </header>
 
-      {/* --- Hero --- */}
+      {/* Hero */}
       <section className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 pt-6 pb-10 
 md:pb-14">
         <motion.h1
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className={`${orbitron.className} whitespace-nowrap text-center mx-auto 
-font-bold text-[1.75rem] sm:text-[2.4rem] md:text-[3.2rem] tracking-[0.18em] 
-text-white/95 leading-tight`}
+          className={`${orbitron.className} text-center mx-auto font-bold text-[1.7rem] 
+sm:text-[2.4rem] md:text-[3.1rem] tracking-[0.14em] text-white/95 leading-snug 
+text-balance`}
           style={{
             textShadow:
-              '0 0 10px rgba(220,220,255,.08), 0 0 28px rgba(120,150,255,.12)',
+              '0 0 12px rgba(220,220,255,.08), 0 0 28px rgba(120,150,255,.15)',
+            WebkitTextStroke: '0.3px rgba(255,255,255,0.15)',
           }}
         >
           おうちで、最高の映画体験を。
@@ -94,7 +91,7 @@ text-white/95 leading-tight`}
           animate="show"
           custom={1}
           className="mt-3 md:mt-4 text-center text-[0.9rem] sm:text-base text-white/65 
-leading-relaxed"
+leading-relaxed text-balance"
         >
           夜は二つ — 無心の夜 / 問いの夜。あなたの部屋がスクリーンになる。
         </motion.p>
@@ -123,13 +120,14 @@ bg-white/10 hover:bg-white/15 border border-white/10 transition"
         </motion.div>
       </section>
 
-      {/* --- New Articles --- */}
+      {/* New Articles */}
       <section
         id="new"
         className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 py-10 md:py-14"
       >
         <div className="flex items-end justify-between mb-6">
-          <h2 className="text-base sm:text-lg font-semibold text-white/90">
+          <h2 className="text-base sm:text-lg font-semibold text-white/90 flex 
+items-center gap-2">
             🎬 新着記事
           </h2>
           <Link
@@ -191,7 +189,7 @@ group-hover:opacity-100 transition duration-500 bg-gradient-to-t from-white/5" /
         </div>
       </section>
 
-      {/* --- Featured of the Week --- */}
+      {/* Featured of the Week */}
       <section className="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-8 py-10 
 md:py-14">
         <h2 className="mb-6 text-base sm:text-lg font-semibold text-white/90">
@@ -239,7 +237,7 @@ to-[#0f0c07] border border-white/10" />
         </motion.div>
       </section>
 
-      {/* --- Footer --- */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/10">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 text-center text-[0.78rem] 
 text-white/55 leading-relaxed">
