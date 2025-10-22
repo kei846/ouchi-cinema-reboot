@@ -17,13 +17,16 @@ text-white relative"
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* タイトル：24風、常に1行中央表示 */}
+      {/* タイトル */}
       <motion.h1
         className="font-bold uppercase text-[1.8rem] sm:text-[2.5rem] md:text-[4rem] 
-tracking-tight text-yellow-400 whitespace-nowrap text-center"
+tracking-tight text-yellow-300 whitespace-nowrap text-center"
         style={{
-          textShadow:
-            '0 0 5px #FFD700, 0 0 10px #FFD700, 0 0 20px #FFA500',
+          textShadow: `
+            0 0 4px rgba(255,215,0,0.8),
+            0 0 10px rgba(255,200,0,0.6),
+            0 0 18px rgba(255,180,0,0.4)
+          `,
           fontFamily: 'Orbitron, monospace',
         }}
         initial={{ opacity: 0, y: 20 }}
@@ -54,7 +57,7 @@ hover:text-black transition-all duration-300">
 
       {/* ▼ トップページに戻る */}
       <motion.div
-        className="absolute bottom-10"
+        className="absolute bottom-20"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 1 }}
@@ -64,7 +67,7 @@ hover:text-black transition-all duration-300">
           className={`${orbitron.className} border border-gray-500 px-5 py-2 rounded-md 
 text-sm text-gray-300 hover:bg-white hover:text-black transition-all duration-300`}
         >
-           TOP
+          TOP
         </Link>
       </motion.div>
     </motion.div>
