@@ -57,7 +57,7 @@ hover:text-black transition-all duration-300">
 
       {/* ▼ トップページに戻る */}
       <motion.div
-        className="absolute bottom-20"
+        className="absolute bottom-60"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 1 }}
