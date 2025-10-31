@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { Orbitron } from 'next/font/google';
+import Link from 'next/link';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -9,119 +9,103 @@ const orbitron = Orbitron({
 });
 
 export default function PolicyPage() {
-  const fade = {
-    hidden: { opacity: 0, y: 30 },
-    show: (i = 0) => ({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 1.1, ease: 'easeOut', delay: 0.12 * i },
-    }),
-  };
-
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center px-6 
-py-20 relative overflow-hidden">
+    <main className="relative min-h-screen bg-black text-white flex flex-col items-center 
+justify-center overflow-hidden">
+      {/* 背景ノイズ */}
       <div
-        className="absolute inset-0 opacity-[0.07] pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
-          backgroundImage:
-            'repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0, 
-rgba(255,255,255,.03) 1px, transparent 1px, transparent 2px)',
+          backgroundImage: `repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0, 
+rgba(255,255,255,.03) 1px, transparent 1px, transparent 2px)`,
         }}
       />
 
+      {/* タイトル */}
       <motion.h1
-        variants={fade}
-        initial="hidden"
-        animate="show"
-        className={`${orbitron.className} text-3xl sm:text-4xl text-yellow-300 mb-10 
-tracking-[0.25em]`}
+        className={`${orbitron.className} text-2xl sm:text-3xl md:text-4xl mb-6 
+text-yellow-300 tracking-[0.2em] text-center`}
         style={{
           textShadow: [
             '0 0 10px rgba(255,255,180,0.6)',
-            '0 0 20px rgba(255,230,140,0.4)',
+            '0 0 25px rgba(255,230,140,0.4)',
           ].join(', '),
         }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
       >
-        PRIVACY POLICY
+        プライバシーポリシー
       </motion.h1>
 
+      {/* 本文 */}
       <motion.div
-        variants={fade}
-        initial="hidden"
-        animate="show"
-        custom={1}
-        className="max-w-3xl text-[0.9rem] leading-relaxed text-white/80 space-y-6"
+        className="max-w-3xl text-sm sm:text-base text-white/80 leading-relaxed px-6 
+text-left space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 1.5 }}
       >
         <p>
-          OUCHI-CINEMA（以下「当サイト」といいます。）は、
-          ご利用者様のプライバシーを尊重し、安心してご覧いただけるよう
-          個人情報の保護に関する方針を以下の通り定めます。
+          OUCHI-CINEMA（以下「当サイト」）は、利用者の皆さまの個人情報を適切に保護し、
+          安心してご利用いただけるよう努めます。
+          以下に当サイトの個人情報保護方針を定めます。
         </p>
 
-        <section>
-          <h2 className="text-yellow-300 mt-6 mb-2 text-sm tracking-widest">1. 
-個人情報の取得と利用目的</h2>
-          <p>
-            
-当サイトでは、お問い合わせやコメントの際にお名前やメールアドレス等をお預かりする場合があります。
-            取得した個人情報は、回答・連絡・運営改善などの正当な目的のみに利用します。
-          </p>
-        </section>
+        <h2 className="text-yellow-300 text-lg mt-8 mb-2">1. 個人情報の利用目的</h2>
+        <p>
+          当サイトでは、メールでのお問い合わせやコメント投稿の際に、
+          
+名前（ハンドルネーム）やメールアドレスなどの個人情報をお預かりする場合があります。
+          これらの情報はお問い合わせへの回答や必要なご連絡のみに使用します。
+        </p>
 
-        <section>
-          <h2 className="text-yellow-300 mt-6 mb-2 text-sm tracking-widest">2. 
-第三者提供について</h2>
-          <p>
-            当サイトは、法令に基づく場合を除き、取得した個人情報を第三者へ提供しません。
-          </p>
-        </section>
+        <h2 className="text-yellow-300 text-lg mt-8 mb-2">2. 個人情報の第三者提供</h2>
+        <p>
+          当サイトは、法令に基づく場合を除き、利用者本人の同意を得ることなく
+          第三者に個人情報を開示・提供することはありません。
+        </p>
 
-        <section>
-          <h2 className="text-yellow-300 mt-6 mb-2 text-sm tracking-widest">3. 
-アクセス解析ツール</h2>
-          <p>
-            当サイトでは、アクセス向上と改善のためにGoogle 
-Analyticsなどの解析ツールを使用しています。
-            
-これによりCookieを通じて匿名のトラフィックデータを収集しますが、個人を特定するものではありません。
-          </p>
-        </section>
+        <h2 className="text-yellow-300 text-lg mt-8 mb-2">3. 
+アクセス解析ツールについて</h2>
+        <p>
+          当サイトでは、アクセス解析のために「Google Analytics」を使用しています。
+          これによりCookieを利用して匿名のトラフィックデータを収集しますが、
+          個人を特定する情報は含まれません。
+        </p>
 
-        <section>
-          <h2 className="text-yellow-300 mt-6 mb-2 text-sm tracking-widest">4. 
-安全管理措置</h2>
-          <p>
-            
-個人情報の漏えいや不正アクセスを防止するため、合理的な安全対策を講じています。
-          </p>
-        </section>
+        <h2 className="text-yellow-300 text-lg mt-8 mb-2">4. 免責事項</h2>
+        <p>
+          当サイトの掲載情報には正確性を期していますが、
+          利用者が当サイトの情報を用いて行う行為については一切の責任を負いません。
+        </p>
 
-        <section>
-          <h2 className="text-yellow-300 mt-6 mb-2 text-sm tracking-widest">5. 
-改定について</h2>
-          <p>
-            本方針の内容は、必要に応じて見直し・改訂を行う場合があります。
-            最新の内容は常に本ページにてご確認いただけます。
-          </p>
-        </section>
+        <h2 className="text-yellow-300 text-lg mt-8 mb-2">5. 改訂について</h2>
+        <p>
+          本ポリシーの内容は、法令の改正や運営方針の変更に応じて、
+          事前の告知なく改訂される場合があります。
+        </p>
 
-        <div className="pt-10 text-white/60 text-[0.8rem] space-y-2">
-          <p>制定日：2025年1月4日</p>
-          <p>運営者：OUCHI-CINEMA編集部（代表：上江洲 慶）</p>
-          <p>お問い合わせ：ouchishinema@gmail.com</p>
-        </div>
+        <p className="mt-10 text-right text-xs text-white/60">
+          制定：2025年1月4日<br />
+          OUCHI-CINEMA 編集部
+        </p>
       </motion.div>
 
+      {/* 戻るボタン */}
       <motion.div
-        variants={fade}
-        initial="hidden"
-        animate="show"
-        custom={2}
-        className="mt-16 text-sm text-white/60"
+        className="mt-16"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.4 }}
       >
-        <Link href="/top" className="hover:text-yellow-300 transition">← BACK TO 
-HOME</Link>
+        <Link
+          href="/top"
+          className="border border-yellow-300 px-6 py-2 rounded-md text-yellow-300 
+hover:bg-yellow-300 hover:text-black transition-all duration-300"
+        >
+          BACK TO HOME
+        </Link>
       </motion.div>
     </main>
   );
