@@ -1,10 +1,15 @@
 import { sanityPublicClient } from '@/sanity/lib/client';
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
+import type { SanityImageSource } from 'next-sanity';
 
 export const revalidate = 60;
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
+type Props = {
+  params: { slug: string };
+};
+
+export default async function PostPage({ params }: Props) {
   const { slug } = params;
 
   const post = await sanityPublicClient.fetch(
