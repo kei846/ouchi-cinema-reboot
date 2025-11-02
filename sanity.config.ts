@@ -14,7 +14,7 @@ export default defineConfig({
   dataset: 'production',
   schema: { types: schema.types }, // ここを修正
   plugins: [
-    deskTool({ structure }),
+    deskTool({ structure: (S) => structure(S as any) }),
     visionTool({ defaultApiVersion: '2025-01-01' }), // apiVersion をハードコード
   ],
 });
