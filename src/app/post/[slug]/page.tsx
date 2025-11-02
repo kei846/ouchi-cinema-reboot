@@ -1,18 +1,15 @@
 import { sanityPublicClient } from '@/sanity/lib/client';
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
-import type { SanityImageSource } from 'next-sanity';
 
 export const revalidate = 60;
 
-// ✅ Next.js 15対応 Promise params 型
-interface PostPageProps {
-  params: Promise<{ slug: string }> | { slug: string };
-}
+type Props = {
+  params: { slug: string };
+};
 
-export default async function PostPage(props: PostPageProps) {
-  const resolvedParams = await props.params;
-  const slug = resolvedParams.slug;
+export default async function PostPage({ params }: Props) {
+  const { slug } = params;
 
   const post = await sanityPublicClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -31,10 +28,8 @@ export default async function PostPage(props: PostPageProps) {
   }
 
   const isLightTheme = post.theme === 'light';
-  const themeClass = isLightTheme ? 'bg-white text-black' : 'bg-[#0a0a0a] 
-text-gray-100';
-  const articleClass = `max-w-none ${isLightTheme ? 'prose' : 'prose 
-prose-invert'}`;
+  const themeClass = isLightTheme ? 'bg-white text-black' : 'bg-[#0a0a0a] text-gray-100';
+  const articleClass = `max-w-none ${isLightTheme ? 'prose' : 'prose prose-invert'}`;
 
   return (
     <main className={`${themeClass} min-h-screen px-6 py-10`}>
@@ -51,4 +46,3 @@ prose-invert'}`;
     </main>
   );
 }
-
