@@ -5,22 +5,24 @@ import type { SanityImageSource } from 'next-sanity';
 
 export const revalidate = 60;
 
-type Props = {
-  params: { slug: string };
-};
+// ✅ Next.js 15対応 Promise params 型
+interface PostPageProps {
+  params: Promise<{ slug: string }> | { slug: string };
+}
 
-export default async function PostPage({ params }: Props) {
-  const { slug } = params;
+export default async function PostPage(props: PostPageProps) {
+  const resolvedParams = await props.params;
+  const slug = resolvedParams.slug;
 
   const post = await sanityPublicClient.fetch(
-    `*[_type == \"post\" && slug.current == $slug][0]{
-    title,
-    excerpt,
-    body,
-    \"seriesTitle\": series->title,
-    tags,
-    theme
-  }`,
+    `*[_type == "post" && slug.current == $slug][0]{
+      title,
+      excerpt,
+      body,
+      "seriesTitle": series->title,
+      tags,
+      theme
+    }`,
     { slug }
   );
 
@@ -29,8 +31,10 @@ export default async function PostPage({ params }: Props) {
   }
 
   const isLightTheme = post.theme === 'light';
-  const themeClass = isLightTheme ? 'bg-white text-black' : 'bg-[#0a0a0a] text-gray-100';
-  const articleClass = `max-w-none ${isLightTheme ? 'prose' : 'prose prose-invert'}`;
+  const themeClass = isLightTheme ? 'bg-white text-black' : 'bg-[#0a0a0a] 
+text-gray-100';
+  const articleClass = `max-w-none ${isLightTheme ? 'prose' : 'prose 
+prose-invert'}`;
 
   return (
     <main className={`${themeClass} min-h-screen px-6 py-10`}>
@@ -46,5 +50,5 @@ export default async function PostPage({ params }: Props) {
       </article>
     </main>
   );
-
 }
+
