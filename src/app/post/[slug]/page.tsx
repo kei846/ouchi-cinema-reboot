@@ -4,11 +4,7 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 60;
 
-type Props = {
-  params: { slug: string };
-};
-
-export default async function PostPage({ params }: Props) {
+export default async function PostPage({ params }: any) {
   const { slug } = params;
 
   const post = await sanityPublicClient.fetch(
@@ -23,9 +19,7 @@ export default async function PostPage({ params }: Props) {
     { slug }
   );
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   const isLightTheme = post.theme === 'light';
   const themeClass = isLightTheme ? 'bg-white text-black' : 'bg-[#0a0a0a] text-gray-100';
@@ -33,13 +27,11 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <main className={`${themeClass} min-h-screen px-6 py-10`}>
-      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+      <h1 className='text-3xl font-bold mb-4'>{post.title}</h1>
       {post.seriesTitle && (
-        <p className="text-sm opacity-70 mb-2">
-          シリーズ: {post.seriesTitle}
-        </p>
+        <p className='text-sm opacity-70 mb-2'>シリーズ: {post.seriesTitle}</p>
       )}
-      <p className="mb-6 opacity-80">{post.excerpt}</p>
+      <p className='mb-6 opacity-80'>{post.excerpt}</p>
       <article className={articleClass}>
         <PortableText value={post.body} />
       </article>
