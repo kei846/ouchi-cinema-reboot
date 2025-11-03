@@ -48,6 +48,7 @@ export default function TopPage() {
   const [deepList, setDeepList] = useState<Post[]>([]);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [goodsList, setGoodsList] = useState<Goods[]>([]);
+  const [harryPotterList, setHarryPotterList] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchAllContent = async () => {
@@ -57,21 +58,24 @@ export default function TopPage() {
         deepList: `*[_type == "post" && "深層考察" in tags] | order(publishedAt desc) { title, "desc": excerpt, slug }[0...3]`,
         seriesList: `*[_type == "series"] | order(_createdAt asc) { title, "desc": description, color }`,
         goodsList: `*[_type == "goodsCategory"] | order(_createdAt asc) { name, "link": "/goods/" + slug.current, color }`,
+        harryPotterList: `*[_type == "post" && series->title == "ハリーポッター"] | order(publishedAt asc) { title, "desc": excerpt, "tag": "ハリーポッター", slug }`,
       };
 
       try {
-        const [newPosts, recommendedPosts, deepPosts, seriesItems, goodsItems] = await Promise.all([
+        const [newPosts, recommendedPosts, deepPosts, seriesItems, goodsItems, harryPotterPosts] = await Promise.all([
           sanityPublicClient.fetch(queries.newList),
           sanityPublicClient.fetch(queries.recommendList),
           sanityPublicClient.fetch(queries.deepList),
           sanityPublicClient.fetch(queries.seriesList),
           sanityPublicClient.fetch(queries.goodsList),
+          sanityPublicClient.fetch(queries.harryPotterList),
         ]);
         setNewList(newPosts);
         setRecommendList(recommendedPosts);
         setDeepList(deepPosts);
         setSeriesList(seriesItems);
         setGoodsList(goodsItems);
+        setHarryPotterList(harryPotterPosts);
       } catch (error) {
         console.error('Failed to fetch page content:', error);
       }
@@ -162,6 +166,38 @@ mb-1">{n.title}</h3>
               <p className="text-sm text-white/65 leading-relaxed 
 mb-3">{n.desc}</p>
               <Link href={`/post/${n.slug.current}`} className="text-sm text-white/70 
+hover:text-white transition">続きを読む →</Link>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      {/* === ハリーポッターシリーズ === */}
+      <section id="harry-potter" className="relative z-10 max-w-6xl mx-auto px-5 
+sm:px-8 py-12 md:py-16">
+        <h2 className="text-lg sm:text-xl font-semibold text-white/90 
+mb-6 text-center">🪄 ハリーポッターシリーズ</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {harryPotterList.map((hp, i) => (
+            <motion.article
+              key={i}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              custom={i}
+              className="rounded-xl border border-white/10 
+bg-white/[0.04] p-6 hover:border-white/25 transition"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs bg-yellow-400/10 px-2 py-0.5 
+rounded-full text-yellow-300/70">{hp.tag}</span>
+              </div>
+              <h3 className="text-white/90 font-semibold 
+mb-1">{hp.title}</h3>
+              <p className="text-sm text-white/65 leading-relaxed 
+mb-3">{hp.desc}</p>
+              <Link href={`/post/${hp.slug.current}`} className="text-sm text-white/70 
 hover:text-white transition">続きを読む →</Link>
             </motion.article>
           ))}
