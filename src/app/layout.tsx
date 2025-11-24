@@ -1,41 +1,42 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter, Roboto_Mono } from "next/font/google";
+import "./globals.css";
 
-// Google Fonts 設定
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-  display: 'swap',
+// Google Fonts
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-  display: 'swap',
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
 });
 
 // メタデータ
 export const metadata: Metadata = {
-  title: 'OUCHI-CINEMA | おうちで、最高の映画体験を。',
+  title: "OUCHI-CINEMA | おうちで、最高の映画体験を。",
   description:
     
-'無心の夜と問いの夜。あなたの部屋がスクリーンになる。OUCHI-CINEMAでは、心を揺らす映画体験を提案します。',
+"無心の夜と問いの夜。あなたの部屋がスクリーンになる。OUCHI-CINEMAでは、心を揺らす映画体験を提案します。",
   openGraph: {
-    title: 'OUCHI-CINEMA',
+    title: "OUCHI-CINEMA",
     description:
       
-'無心の夜と問いの夜。あなたの部屋がスクリーンになる。OUCHI-CINEMAでは、心を揺らす映画体験を提案します。',
-    url: 'https://ouchi-cinema-reboot.vercel.app',
-    siteName: 'OUCHI-CINEMA',
-    locale: 'ja_JP',
-    type: 'website',
+"無心の夜と問いの夜。あなたの部屋がスクリーンになる。OUCHI-CINEMAでは、心を揺らす映画体験を提案します。",
+    url: "https://ouchi-cinema-reboot.vercel.app",
+    siteName: "OUCHI-CINEMA",
+    locale: "ja_JP",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'OUCHI-CINEMA',
+    card: "summary_large_image",
+    title: "OUCHI-CINEMA",
     description:
-      'おうちで、最高の映画体験を。無心の夜と問いの夜。あなたの部屋がスクリーンになる。',
+      
+"おうちで、最高の映画体験を。無心の夜と問いの夜。あなたの部屋がスクリーンになる。",
   },
 };
 
@@ -46,10 +47,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black 
-text-white`}
-      >
+      <body className={`${inter.variable} ${robotoMono.variable} 
+antialiased`}>
         {children}
       </body>
     </html>

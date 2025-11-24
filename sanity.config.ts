@@ -1,20 +1,23 @@
-'use client';
-
-import {defineConfig} from 'sanity';
-import {deskTool} from 'sanity/desk'; // deskTool をインポート
-import {visionTool} from '@sanity/vision';
-
-import {schema} from './src/sanity/schemaTypes';
-import {structure} from './src/sanity/structure';
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { visionTool } from '@sanity/vision'
+import { schema } from './src/sanity/schemaTypes'
+import { structure } from './src/sanity/structure'
 
 export default defineConfig({
   name: 'default',
-  title: 'ouchi-cinema-reboot',
-  projectId: 'csuhnmyi',
+  title: 'OUCHI-CINEMA',
+
+  projectId: 'csuhnmyi', // ← ここが本番ID
   dataset: 'production',
-  schema: { types: schema.types }, // ここを修正
+
   plugins: [
-    deskTool({ structure: (S) => structure(S as any) }),
-    visionTool({ defaultApiVersion: '2025-01-01' }), // apiVersion をハードコード
+    structureTool({ structure }),
+    visionTool(),
   ],
-});
+
+  schema: {
+    types: schema.types,
+  },
+})
+

@@ -25,7 +25,7 @@ interface Post {
   title: string;
   desc: string;
   tag?: string;
-  slug: {
+  slug?: { // Changed to optional
     current: string;
   };
 }
@@ -87,12 +87,13 @@ name, "link": "/goods/" + slug.current, color }`,
           sanityPublicClient.fetch(queries.harryPotterList),
         ]);
 
-        setNewList(newPosts);
-        setRecommendList(recommendedPosts);
-        setDeepList(deepPosts);
+        // Filter out posts with no slug before setting state to prevent errors
+        setNewList(newPosts.filter((p) => p.slug?.current));
+        setRecommendList(recommendedPosts.filter((p) => p.slug?.current));
+        setDeepList(deepPosts.filter((p) => p.slug?.current));
         setSeriesList(seriesItems);
         setGoodsList(goodsItems);
-        setHarryPotterList(harryPotterPosts);
+        setHarryPotterList(harryPotterPosts.filter((p) => p.slug?.current));
       } catch (error) {
         console.error('Failed to fetch page content:', error);
       }
@@ -196,7 +197,7 @@ mb-1">{n.title}</h3>
                 {n.desc}
               </p>
               <Link
-                href={`/post/${n.slug.current}`}
+                href={`/post/${n.slug?.current}`}
                 className="text-sm text-white/70 hover:text-white 
 transition"
               >
@@ -257,7 +258,7 @@ mb-1">{r.title}</h3>
                 {r.desc}
               </p>
               <Link
-                href={`/post/${r.slug.current}`}
+                href={`/post/${r.slug?.current}`}
                 className="text-sm text-white/70 hover:text-white 
 transition"
               >
@@ -297,7 +298,7 @@ p-6 hover:border-white/25 transition"
                 {d.desc}
               </p>
               <Link
-                href={`/post/${d.slug.current}`}
+                href={`/post/${d.slug?.current}`}
                 className="text-sm text-white/70 hover:text-white 
 transition"
               >

@@ -19,37 +19,11 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'type',
-      title: '夜のタイプ',
-      type: 'string',
-      options: {
-        list: [
-          { title: '無心の夜', value: 'mushin' },
-          { title: '問いの夜', value: 'toi' },
-        ],
-        layout: 'radio',
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: 'tags',
       title: 'タグ',
       type: 'array',
       of: [{ type: 'string' }],
-    }),
-    defineField({
-      name: 'theme',
-      title: 'テーマカラー',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'ライト（白）', value: 'light' },
-          { title: 'ダーク（黒）', value: 'dark' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'dark',
-      description: '記事全体の背景トーンを選択します。',
+      description: '「おすすめ」「深層考察」などのタグを入力します。',
     }),
     defineField({
       name: 'mainImage',
@@ -65,17 +39,16 @@ export default defineType({
       validation: (Rule) => Rule.max(200),
     }),
     defineField({
-      name: 'series', // 新しく追加するフィールド名
+      name: 'series',
       title: '関連シリーズ',
       type: 'reference',
-      to: [{type: 'series'}], // series スキーマを参照
+      to: [{type: 'series'}],
       description: 'この記事が属するシリーズを選択してください。',
     }),
     defineField({
       name: 'body',
       title: '本文',
-      type: 'array',
-      of: [{ type: 'block' }],
+      type: 'blockContentType',
     }),
     defineField({
       name: 'publishedAt',
