@@ -124,7 +124,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         )}
 
         {/* 本文 */}
-        <article className="prose prose-lg max-w-none">
+        <article className="prose prose-lg max-w-none text-black">
           <PortableText value={post.body} components={portableTextComponents} />
         </article>
       </div>
