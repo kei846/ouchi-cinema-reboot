@@ -88,12 +88,12 @@ name, "link": "/goods/" + slug.current, color }`,
         ]);
 
         // Filter out posts with no slug before setting state to prevent errors
-        setNewList(newPosts.filter((p) => p.slug?.current));
-        setRecommendList(recommendedPosts.filter((p) => p.slug?.current));
-        setDeepList(deepPosts.filter((p) => p.slug?.current));
+        setNewList(newPosts.filter((p: Post) => p.slug?.current));
+        setRecommendList(recommendedPosts.filter((p: Post) => p.slug?.current));
+        setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
         setSeriesList(seriesItems);
         setGoodsList(goodsItems);
-        setHarryPotterList(harryPotterPosts.filter((p) => p.slug?.current));
+        setHarryPotterList(harryPotterPosts.filter((p: Post) => p.slug?.current));
       } catch (error) {
         console.error('Failed to fetch page content:', error);
       }
