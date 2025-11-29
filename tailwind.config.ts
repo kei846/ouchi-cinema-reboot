@@ -1,22 +1,12 @@
-// tailwind.config.ts
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  // Tailwind CSSがクラス名をスキャンするファイルを正確に指定
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}"
   ],
-  darkMode: 'class', // ダークモードをクラスベースで制御
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['var(--font-sans)'],
-        mono: ['var(--font-mono)'],
-      },
-    },
+    extend: {},
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [],
 }
-export default config
