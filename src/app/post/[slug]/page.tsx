@@ -59,7 +59,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
       h2: ({ value, children }: any) => {
         const id = slugify(getBlockText(value));
         return (
-          <h2 id={id} className="mt-12 mb-4 text-2xl font-bold text-gray-900">
+          <h2 id={id} className="mt-12 mb-4 text-2xl font-bold">
             {children}
           </h2>
         );
@@ -67,17 +67,17 @@ export default async function PostPage({ params }: { params: { slug: string } })
       h3: ({ value, children }: any) => {
         const id = slugify(getBlockText(value));
         return (
-          <h3 id={id} className="mt-8 mb-3 text-xl font-bold text-gray-900">
+          <h3 id={id} className="mt-8 mb-3 text-xl font-bold">
             {children}
           </h3>
         );
       },
-      normal: ({ children }: any) => <p className="mb-4 text-base text-gray-800 leading-relaxed">{children}</p>,
-      blockquote: ({ children }: any) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4 text-gray-600">{children}</blockquote>,
+      normal: ({ children }: any) => <p className="mb-4">{children}</p>,
+      blockquote: ({ children }: any) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">{children}</blockquote>,
     },
     marks: {
-      strong: ({ children }: any) => <strong className="font-bold">{children}</strong>,
-      em: ({ children }: any) => <em className="italic">{children}</em>,
+      strong: ({ children }: any) => <strong>{children}</strong>,
+      em: ({ children }: any) => <em>{children}</em>,
       link: ({ value, children }: any) => {
         const { href } = value;
         return (
@@ -88,8 +88,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
       },
     },
     list: {
-      bullet: ({ children }: any) => <ul className="list-disc pl-5 my-4 space-y-2 text-gray-800">{children}</ul>,
-      number: ({ children }: any) => <ol className="list-decimal pl-5 my-4 space-y-2 text-gray-800">{children}</ol>,
+      bullet: ({ children }: any) => <ul className="list-disc pl-5 my-4">{children}</ul>,
+      number: ({ children }: any) => <ol className="list-decimal pl-5 my-4">{children}</ol>,
     },
     listItem: {
       bullet: ({ children }: any) => <li>{children}</li>,
@@ -110,7 +110,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
               シリーズ: {post.seriesTitle}
             </Link>
           )}
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 text-gray-900">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
             {post.title}
           </h1>
           <p className="text-lg text-gray-500">{post.excerpt}</p>
@@ -124,7 +124,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         )}
 
         {/* 本文 */}
-        <article>
+        <article className="prose prose-lg max-w-none prose-neutral">
           <PortableText value={post.body} components={portableTextComponents} />
         </article>
       </div>

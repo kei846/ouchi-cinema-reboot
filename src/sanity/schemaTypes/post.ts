@@ -26,6 +26,21 @@ export default defineType({
       description: '「おすすめ」「深層考察」などのタグを入力します。',
     }),
     defineField({
+      name: 'theme',
+      title: 'テーマ（夜の種類）',
+      type: 'string',
+      options: {
+        list: [
+          { title: '無心の夜', value: 'mushin' },
+          { title: '問いの夜', value: 'toi' },
+        ],
+        layout: 'radio',
+      },
+      description: '記事がどちらの「夜」のテーマに属するか選択してください。',
+      initialValue: 'mushin',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'mainImage',
       title: 'メイン画像',
       type: 'image',
