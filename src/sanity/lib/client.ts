@@ -9,9 +9,6 @@ export const sanityPublicClient = createClient({
   apiVersion,
   useCdn: true,
   perspective: 'published',
-  next: {
-    tags: ['sanity'],
-  },
   stega: {
     enabled: false,
     studioUrl: '/studio',

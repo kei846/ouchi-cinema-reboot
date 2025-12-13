@@ -1,5 +1,5 @@
 // src/app/api/revalidate/route.ts
-import { revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
 
@@ -24,10 +24,23 @@ export async function POST(req: NextRequest) {
       return new Response('Bad Request', { status: 400 });
     }
 
-    // 'sanity'タグが付いたすべてのキャッシュを再検証
-    revalidateTag('sanity');
+    // 再検証するパスを決定
+    const staleRoutes: string[] = ['/']; // トップページは常に再検証
 
-    const message = `Revalidated sanity tag`;
+    if (body._type === 'post' && body.slug?.current) {
+      // 記事詳細ページのパスを追加
+      staleRoutes.push(`/post/${body.slug.current}`);
+      // 記事一覧ページ（/top, /mainなど）も追加
+      staleRoutes.push('/top');
+      staleRoutes.push('/main');
+    }
+
+    console.log('Revalidating paths:', staleRoutes);
+
+    // パスの再検証を実行
+    staleRoutes.forEach((path) => revalidatePath(path));
+
+    const message = `Revalidated routes: ${staleRoutes.join(', ')}`;
     return NextResponse.json({ message });
 
   } catch (err) {
