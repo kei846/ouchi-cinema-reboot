@@ -35,6 +35,7 @@ const getBlockText = (block: any): string => {
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const post = await sanityPublicClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
+      _id,
       title,
       excerpt,
       body,
@@ -46,6 +47,17 @@ export default async function PostPage({ params }: { params: { slug: string } })
   );
 
   if (!post || !post.body) notFound();
+
+  // 他の記事を取得
+  const otherPosts = await sanityPublicClient.fetch(
+    `*[_type == "post" && _id != $currentId] | order(publishedAt desc)[0...3]{
+      _id,
+      title,
+      slug,
+      mainImage
+    }`,
+    { currentId: post._id }
+  );
 
   // --- 目次用の見出し（h2, h3）を抽出 ---
   const headings = post.body
@@ -154,6 +166,44 @@ export default async function PostPage({ params }: { params: { slug: string } })
         <article className="prose prose-lg max-w-none prose-neutral">
           <PortableText value={post.body} components={portableTextComponents} />
         </article>
+
+        {/* 他の記事も読む */}
+        <section className="mt-16 pt-8 border-t border-gray-200">
+          <h2 className="text-2xl font-bold text-center mb-8">他の記事も読む</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {otherPosts.map((p: any) => (
+              <Link href={`/post/${p.slug.current}`} key={p._id} className="group block bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="relative aspect-video">
+                  {p.mainImage ? (
+                    <Image
+                      src={urlFor(p.mainImage).width(400).height(225).fit('crop').auto('format').url()}
+                      alt={p.title}
+                      fill
+                      className="object-cover rounded-t-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 rounded-t-lg flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">No Image</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-500 transition-colors">{p.title}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* トップページに戻るボタン */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/top"
+            className="inline-flex items-center px-6 py-3 border border-gray-700 rounded-md text-sm font-medium text-gray-700 hover:bg-black hover:text-white transition-all duration-300"
+          >
+            Back to Top
+          </Link>
+        </div>
       </div>
     </main>
   );
