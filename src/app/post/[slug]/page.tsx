@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { sanityPublicClient } from '@/sanity/lib/client';
+import imageUrlBuilder from '@sanity/image-url';
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
 
 export const revalidate = 60; // Next.js 14 App Router のキャッシュ再検証設定
+
+// Sanityの画像URLを生成するためのビルダー
+const builder = imageUrlBuilder(sanityPublicClient);
+function urlFor(source: any) {
+  return builder.image(source);
+}
 
 // --- ヘルパー関数 ---
 // テキストをURLに適したIDに変換 (日本語対応)
@@ -55,6 +63,25 @@ export default async function PostPage({ params }: { params: { slug: string } })
   // --- Custom PortableText Components ---
   // 見出しにidを付与し、基本的なマークアップを定義
   const portableTextComponents = {
+    types: {
+      image: ({ value }: any) => {
+        if (!value?.asset?._ref) {
+          return null;
+        }
+        return (
+          <div className="my-8 flex justify-center">
+            <Image
+              src={urlFor(value).width(800).fit('max').auto('format').url()}
+              alt={value.alt || ' '}
+              width={800}
+              height={450}
+              className="rounded-lg object-cover"
+              loading="lazy"
+            />
+          </div>
+        );
+      },
+    },
     block: {
       h2: ({ value, children }: any) => {
         const id = slugify(getBlockText(value));
