@@ -1,5 +1,6 @@
 // src/sanity/structure.ts
-import type { StructureBuilder } from 'sanity/structure'
+import type { StructureBuilder, DefaultDocumentNodeResolver } from 'sanity/structure'
+import IFrame from './components/IFrame'
 
 export const structure = (S: StructureBuilder) =>
   S.list()
@@ -21,7 +22,7 @@ export const structure = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList('post')
                     .title('無心の夜')
-                    .filter('_type == "post" && "無心の夜" in tags')
+                    .filter('_type == "post" && theme == "mushin"')
                 ),
               S.listItem()
                 .title('問いの夜')
@@ -29,7 +30,7 @@ export const structure = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList('post')
                     .title('問いの夜')
-                    .filter('_type == "post" && "問いの夜" in tags')
+                    .filter('_type == "post" && theme == "toi"')
                 ),
               S.listItem()
                 .title('すべての記事')
@@ -72,5 +73,19 @@ export const structure = (S: StructureBuilder) =>
         .title('映画グッズコーナー')
         .id('goods-corner')
         .child(S.documentTypeList('goodsCategory').title('グッズカテゴリ')),
-    ])
+    ]);
 
+export const defaultDocumentNode: DefaultDocumentNodeResolver = (S, { schemaType }) => {
+  if (schemaType === 'post') {
+    return S.document().views([
+      S.view.form(),
+      S.view.component(IFrame).options({
+        url: (doc: any) => `http://localhost:3000/api/preview?secret=cmVFxHHkavKCerUB7e4MD8p0qECm5EamtzPm/Z7cs6Y=&slug=${doc.slug.current}`,
+        reload: {
+          button: true,
+        },
+      }).title('Preview'),
+    ]);
+  }
+  return S.document().views([S.view.form()]);
+};

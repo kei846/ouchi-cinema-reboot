@@ -1,39 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { sanityPublicClient } from '@/sanity/lib/client';
+import { createClient } from 'next-sanity';
+import { draftMode } from 'next/headers';
 import imageUrlBuilder from '@sanity/image-url';
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
+import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
 
-export const revalidate = 60; // Next.js 14 App Router のキャッシュ再検証設定
-
-// Sanityの画像URLを生成するためのビルダー
-const builder = imageUrlBuilder(sanityPublicClient);
-function urlFor(source: any) {
-  return builder.image(source);
-}
-
-// --- ヘルパー関数 ---
-// テキストをURLに適したIDに変換 (日本語対応)
-const slugify = (text: string): string => {
-  return text
-    .toLowerCase()
-    .replace(/「|」|『|』/g, '') // 日本語の引用符を削除
-    .replace(/[^\p{L}\p{N}\s-]+/gu, '') // Unicodeの文字、数字、スペース、ハイフン以外を削除 (uフラグ必須)
-    .replace(/\s+/g, '-'); // スペースをハイフンに
-};
-
-// Portable Textのブロックからプレーンテキストを取得
-const getBlockText = (block: any): string => {
-  // block.children は Portable Text の span の配列
-  return block.children?.map((child: any) => child.text).join('') || '';
-};
+// export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
+export const revalidate = 0; // ページレベルのキャッシュを無効にする
 
 // --- メインコンポーネント ---
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await sanityPublicClient.fetch(
+  const isDraftMode = draftMode().isEnabled;
+
+  let client = sanityPublicClient;
+  let builder = imageUrlBuilder(client);
+
+  if (isDraftMode) {
+    const previewClient = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: '2024-05-01',
+      useCdn: false,
+      token: process.env.SANITY_API_TOKEN!,
+      perspective: 'previewDrafts',
+    });
+    client = previewClient;
+    builder = imageUrlBuilder(client);
+  }
+
+  function urlFor(source: any) {
+    return builder.image(source);
+  }
+
+  const post = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
       _id,
       title,
@@ -43,21 +47,45 @@ export default async function PostPage({ params }: { params: { slug: string } })
       "seriesSlug": series->slug.current,
       tags
     }`,
-    { slug: params.slug }
+    { slug: params.slug },
+    {
+      // cache: 'no-store', // 常に最新のデータを取得
+      tags: ['posts'], // revalidateTagと連携させるためのタグ
+    }
   );
 
   if (!post || !post.body) notFound();
 
   // 他の記事を取得
-  const otherPosts = await sanityPublicClient.fetch(
+  const otherPosts = await client.fetch(
     `*[_type == "post" && _id != $currentId] | order(publishedAt desc)[0...3]{
       _id,
       title,
       slug,
       mainImage
     }`,
-    { currentId: post._id }
+    { currentId: post._id },
+    {
+      // cache: 'no-store', // 常に最新のデータを取得
+      tags: ['posts'], // 全ての記事リストのキャッシュを無効化するタグ
+    }
   );
+
+  // --- ヘルパー関数 ---
+  // テキストをURLに適したIDに変換 (日本語対応)
+  const slugify = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/「|」|『|』/g, '') // 日本語の引用符を削除
+      .replace(/[^\p{L}\p{N}\s-]+/gu, '') // Unicodeの文字、数字、スペース、ハイフン以外を削除 (uフラグ必須)
+      .replace(/\s+/g, '-'); // スペースをハイフンに
+  };
+
+  // Portable Textのブロックからプレーンテキストを取得
+  const getBlockText = (block: any): string => {
+    // block.children は Portable Text の span の配列
+    return block.children?.map((child: any) => child.text).join('') || '';
+  };
 
   // --- 目次用の見出し（h2, h3）を抽出 ---
   const headings = post.body
@@ -81,17 +109,24 @@ export default async function PostPage({ params }: { params: { slug: string } })
           return null;
         }
         return (
-          <div className="my-8 flex justify-center">
+          <div className="my-8 flex justify-center relative w-full h-96"> {/* 親要素にrelativeとサイズを指定 */}
             <Image
-              src={urlFor(value).width(800).fit('max').auto('format').url()}
+              src={urlFor(value).fit('max').auto('format').url()} // widthを削除
               alt={value.alt || ' '}
-              width={800}
-              height={450}
-              className="rounded-lg object-cover"
+              fill // fillプロパティを追加
+              style={{ objectFit: 'contain' }} // 画像が親要素に収まるように調整
+              sizes="(max-width: 768px) 100vw, 800px" // レスポンシブなサイズ指定
+              className="rounded-lg"
               loading="lazy"
             />
           </div>
         );
+      },
+      linkCard: ({ value }: any) => {
+        if (!value?.url) {
+          return null;
+        }
+        return <LinkCard url={value.url} />;
       },
     },
     block: {

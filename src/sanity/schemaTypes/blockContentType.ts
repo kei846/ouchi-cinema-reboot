@@ -37,6 +37,7 @@ export default defineType({
       type: 'image',
       options: { hotspot: true },
     }),
+    defineArrayMember({ type: 'linkCard' }), // 追加
   ],
 })
 

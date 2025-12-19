@@ -10,10 +10,12 @@
     "sanity:reset": "node scripts/sanity-reset.js"
   },
   "dependencies": {
+    "@portabletext/markdown": "^1.0.7",
     "@sanity/client": "^6.20.1",
     "@sanity/icons": "^2.11.0",
     "@sanity/image-url": "^1.0.2",
     "@sanity/vision": "^3.45.0",
+    "cheerio": "^1.1.2",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.2.10",
     "next": "^14.2.3",

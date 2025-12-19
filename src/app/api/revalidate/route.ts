@@ -1,7 +1,6 @@
 // src/app/api/revalidate/route.ts
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache'; // revalidateTagを追加
 import { type NextRequest, NextResponse } from 'next/server';
-import { parseBody } from 'next-sanity/webhook';
 
 // 環境変数から再検証用のシークレットトークンを取得
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;
@@ -9,42 +8,54 @@ const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;
 // SanityからのWebhookリクエストを処理するPOSTハンドラ
 export async function POST(req: NextRequest) {
   try {
-    // リクエストボディの正当性を検証
-    const { body, isValidSignature } = await parseBody<{
-      _type: string;
-      slug?: { current?: string };
-    }>(req, REVALIDATE_SECRET);
+    // リクエストヘッダーからシークレットを取得
+    const secret = req.headers.get('sanity-secret');
 
-    if (!isValidSignature) {
-      const message = 'Invalid signature';
-      return new Response(message, { status: 401 });
+    // シークレットが一致しない場合はエラーを返す
+    if (secret !== REVALIDATE_SECRET) {
+      console.warn('Invalid revalidate secret provided.');
+      return NextResponse.json({ message: 'Invalid secret' }, { status: 401 });
     }
 
-    if (!body?._type) {
+    // リクエストボディから_typeとslugを取得
+    const body = await req.json();
+    const { _type, slug } = body;
+
+    if (!_type) {
+      console.warn('Bad Request: Missing _type in webhook body.');
       return new Response('Bad Request', { status: 400 });
     }
 
-    // 再検証するパスを決定
-    const staleRoutes: string[] = ['/']; // トップページは常に再検証
+    const revalidatedTags: string[] = [];
+    const revalidatedPaths: string[] = [];
 
-    if (body._type === 'post' && body.slug?.current) {
-      // 記事詳細ページのパスを追加
-      staleRoutes.push(`/post/${body.slug.current}`);
-      // 記事一覧ページ（/top, /mainなど）も追加
-      staleRoutes.push('/top');
-      staleRoutes.push('/main');
+    // 記事タイプに応じてrevalidateTagとrevalidatePathを使い分ける
+    if (_type === 'post') {
+      // 全ての記事関連のキャッシュを無効化するタグ
+      revalidateTag('posts');
+      revalidatedTags.push('posts');
+
+      if (slug?.current) {
+        // 特定の記事詳細ページのパスを再検証
+        revalidatePath(`/post/${slug.current}`);
+        revalidatedPaths.push(`/post/${slug.current}`);
+      }
+      // トップページやメインページも再検証
+      revalidatePath('/');
+      revalidatePath('/top');
+      revalidatePath('/main');
+      revalidatedPaths.push('/', '/top', '/main');
     }
+    // 他のスキーマタイプ（例: author, categoryなど）も必要に応じて追加
 
-    console.log('Revalidating paths:', staleRoutes);
+    console.log('Revalidated tags:', revalidatedTags);
+    console.log('Revalidated paths:', revalidatedPaths);
 
-    // パスの再検証を実行
-    staleRoutes.forEach((path) => revalidatePath(path));
-
-    const message = `Revalidated routes: ${staleRoutes.join(', ')}`;
+    const message = `Revalidated tags: ${revalidatedTags.join(', ')} and paths: ${revalidatedPaths.join(', ')}`;
     return NextResponse.json({ message });
 
   } catch (err) {
-    console.error(err);
+    console.error('Error during revalidation:', err);
     if (err instanceof Error) {
       return new Response(err.message, { status: 500 });
     }
