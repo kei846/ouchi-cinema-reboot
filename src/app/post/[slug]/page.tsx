@@ -49,8 +49,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
     }`,
     { slug: params.slug },
     {
-      // cache: 'no-store', // 常に最新のデータを取得
-      tags: ['posts'], // revalidateTagと連携させるためのタグ
+      cache: 'no-store', // 常に最新のデータを取得
+      // tags: ['posts'], // revalidateTagと連携させるためのタグ
     }
   );
 
@@ -66,8 +66,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
     }`,
     { currentId: post._id },
     {
-      // cache: 'no-store', // 常に最新のデータを取得
-      tags: ['posts'], // 全ての記事リストのキャッシュを無効化するタグ
+      cache: 'no-store', // 常に最新のデータを取得
+      // tags: ['posts'], // 全ての記事リストのキャッシュを無効化するタグ
     }
   );
 
