@@ -62,7 +62,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
     post.body.map(async (block: any) => {
       if (block._type === 'linkCard' && block.url) {
         const ogpData = await fetchOgp(block.url);
-        console.log('Processed LinkCard OGP:', ogpData); // デバッグログを追加
         return { ...block, ogp: ogpData }; // OGP情報をブロックに埋め込む
       }
       return block;
