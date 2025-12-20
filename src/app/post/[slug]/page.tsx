@@ -8,6 +8,53 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
+import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
+import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
+
+// export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
+export const revalidate = 0; // ページレベルのキャッシュを無効にする
+
+// --- メインコンポーネント ---
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  const isDraftMode = draftMode().isEnabled;
+
+  let client = sanityPublicClient;
+  let builder = imageUrlBuilder(client);
+
+  if (isDraftMode) {
+    const previewClient = createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: '2024-05-01',
+      useCdn: false,
+      token: process.env.SANITY_API_TOKEN!,
+      perspective: 'previewDrafts',
+    });
+    client = previewClient;
+    builder = imageUrlBuilder(client);
+  }
+
+  function urlFor(source: any) {
+    return builder.image(source);
+  }
+
+  const post = await client.fetch(
+    `*[_type == "post" && slug.current == $slug][0]{
+      _id,
+      title,
+      excerpt,
+      body,
+      "seriesTitle": series->title,
+      "seriesSlug": series->slug.current,
+      tags
+    }`,
+    { slug: params.slug },
+    {
+      cache: 'no-store', // 常に最新のデータを取得
+      // tags: ['posts'], // revalidateTagと連携させるためのタグ
+    }
+  );
+
   if (!post || !post.body) notFound();
 
   // --- LinkCardのOGP情報をサーバーサイドで取得し、bodyに埋め込む ---
@@ -87,7 +134,7 @@ import TableOfContents from '@/components/TableOfContents'; // Import the new co
           </div>
         );
       },
-      linkCard: ({ value }: any) => { // asyncを削除
+      linkCard: ({ value }: any) => {
         if (!value?.url) {
           return null;
         }
