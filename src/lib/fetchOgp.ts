@@ -29,6 +29,8 @@ export async function fetchOgp(url: string) {
       siteName: $('meta[property="og:site_name"]').attr('content'),
     };
 
+    console.log('Fetched OGP:', ogp); // デバッグログを追加
+
     return ogp;
   } catch (error) {
     console.error(`Error fetching OGP for ${url}:`, error);
