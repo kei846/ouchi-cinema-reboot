@@ -8,54 +8,18 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
-import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
-import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
-
-// export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
-export const revalidate = 0; // ページレベルのキャッシュを無効にする
-
-// --- メインコンポーネント ---
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const isDraftMode = draftMode().isEnabled;
-
-  let client = sanityPublicClient;
-  let builder = imageUrlBuilder(client);
-
-  if (isDraftMode) {
-    const previewClient = createClient({
-      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-      apiVersion: '2024-05-01',
-      useCdn: false,
-      token: process.env.SANITY_API_TOKEN!,
-      perspective: 'previewDrafts',
-    });
-    client = previewClient;
-    builder = imageUrlBuilder(client);
-  }
-
-  function urlFor(source: any) {
-    return builder.image(source);
-  }
-
-  const post = await client.fetch(
-    `*[_type == "post" && slug.current == $slug][0]{
-      _id,
-      title,
-      excerpt,
-      body,
-      "seriesTitle": series->title,
-      "seriesSlug": series->slug.current,
-      tags
-    }`,
-    { slug: params.slug },
-    {
-      cache: 'no-store', // 常に最新のデータを取得
-      // tags: ['posts'], // revalidateTagと連携させるためのタグ
-    }
-  );
-
   if (!post || !post.body) notFound();
+
+  // --- LinkCardのOGP情報をサーバーサイドで取得し、bodyに埋め込む ---
+  const processedBody = await Promise.all(
+    post.body.map(async (block: any) => {
+      if (block._type === 'linkCard' && block.url) {
+        const ogpData = await fetchOgp(block.url);
+        return { ...block, ogp: ogpData }; // OGP情報をブロックに埋め込む
+      }
+      return block;
+    })
+  );
 
   // 他の記事を取得
   const otherPosts = await client.fetch(
@@ -89,7 +53,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
   };
 
   // --- 目次用の見出し（h2, h3）を抽出 ---
-  const headings = post.body
+  const headings = processedBody // 処理済みのbodyを使用
     .filter((block: any) => {
       const isHeading = block._type === 'block' && ['h2', 'h3'].includes(block.style);
       return isHeading;
@@ -123,12 +87,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
         );
       },
-      linkCard: async ({ value }: any) => { // asyncを追加
+      linkCard: ({ value }: any) => { // asyncを削除
         if (!value?.url) {
           return null;
         }
-        const ogp = await fetchOgp(value.url); // サーバーサイドでOGPを取得
-        return <LinkCard ogp={ogp} url={value.url} />;
+        // OGP情報が埋め込まれたブロックを受け取り、LinkCardに渡す
+        return <LinkCard ogp={value.ogp} url={value.url} />;
       },
     },
     block: {
@@ -201,7 +165,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
         {/* 本文 */}
         <article className="prose prose-lg max-w-none prose-neutral">
-          <PortableText value={post.body} components={portableTextComponents} />
+          <PortableText value={processedBody} components={portableTextComponents} />
         </article>
 
         {/* 他の記事も読む */}
