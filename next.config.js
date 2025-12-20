@@ -4,9 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // 一時的にワイルドカードに変更
-        port: '',
-        pathname: '**',
+        hostname: 'i.ytimg.com',
       },
     ],
   },
