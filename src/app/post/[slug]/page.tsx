@@ -136,7 +136,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         );
       },
       linkCard: ({ value }: any) => {
-        if (!value?.url) {
+        if (!value?.url || !value?.ogp) { // ogpがnullの場合もレンダリングしない
           return null;
         }
         // OGP情報が埋め込まれたブロックを受け取り、LinkCardに渡す

@@ -2,6 +2,8 @@
 import 'server-only';
 import * as cheerio from 'cheerio';
 
+export const dynamic = 'force-dynamic' // これを追加
+
 export async function fetchOgp(url: string) {
   try {
     const res = await fetch(url, {
@@ -10,6 +12,7 @@ export async function fetchOgp(url: string) {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
+        'user-agent': 'Mozilla/5.0' // これを追加
       },
     });
 
@@ -28,6 +31,12 @@ export async function fetchOgp(url: string) {
       url: $('meta[property="og:url"]').attr('content') || url,
       siteName: $('meta[property="og:site_name"]').attr('content'),
     };
+
+    // OGPが空の場合にnullを返す処理を追加
+    if (!ogp.title && !ogp.image) {
+      console.log(`OGP data is empty for ${url}. Returning null.`);
+      return null;
+    }
 
     console.log('Fetched OGP:', ogp); // デバッグログを追加
 
