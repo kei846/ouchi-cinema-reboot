@@ -1,69 +1,28 @@
 // src/components/LinkCard.tsx
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 
 interface OGP {
-  title: string;
-  description: string;
-  image: string;
-  url: string;
-  siteName: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  siteName?: string;
 }
 
 interface LinkCardProps {
-  url: string;
+  ogp: OGP | null;
+  url: string; // フォールバック用に元のURLも受け取る
 }
 
-const LinkCard: React.FC<LinkCardProps> = ({ url }) => {
-  const [ogp, setOgp] = useState<OGP | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchOgp = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(`/api/ogp?url=${encodeURIComponent(url)}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch OGP: ${response.statusText}`);
-        }
-        const data: OGP = await response.json();
-        setOgp(data);
-      } catch (err: any) {
-        setError(err.message);
-        console.error('Error fetching OGP in LinkCard:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOgp();
-  }, [url]);
-
-  if (loading) {
-    return (
-      <div className="my-4 p-4 border border-gray-300 rounded-lg shadow-sm flex items-center space-x-4 animate-pulse">
-        <div className="w-24 h-24 bg-gray-200 rounded-md"></div>
-        <div className="flex-1 space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !ogp || !ogp.title) {
+const LinkCard: React.FC<LinkCardProps> = ({ ogp, url }) => {
+  if (!ogp || !ogp.title) {
     return (
       <div className="my-4 p-4 border border-red-300 bg-red-50 rounded-lg shadow-sm">
         <p className="text-red-700">リンクカードの読み込みに失敗しました。</p>
         <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
           {url}
         </a>
-        {error && <p className="text-red-500 text-sm mt-1">エラー: {error}</p>}
       </div>
     );
   }

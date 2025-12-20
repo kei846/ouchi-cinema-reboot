@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
 import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
+import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
 
 // export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
 export const revalidate = 0; // ページレベルのキャッシュを無効にする
@@ -122,11 +123,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
         );
       },
-      linkCard: ({ value }: any) => {
+      linkCard: async ({ value }: any) => { // asyncを追加
         if (!value?.url) {
           return null;
         }
-        return <LinkCard url={value.url} />;
+        const ogp = await fetchOgp(value.url); // サーバーサイドでOGPを取得
+        return <LinkCard ogp={ogp} url={value.url} />;
       },
     },
     block: {
