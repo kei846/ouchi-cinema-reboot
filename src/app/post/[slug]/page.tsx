@@ -7,6 +7,7 @@ import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import TableOfContents from '@/components/TableOfContents'; // Import the new component
 import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
 import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
@@ -14,6 +15,39 @@ import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
 // export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
 export const revalidate = 0; // ページレベルのキャッシュを無効にする
 export const dynamic = 'force-dynamic';
+
+// --- メタデータ生成 ---
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await sanityPublicClient.fetch(
+    `*[_type == "post" && slug.current == $slug][0]{
+      body
+    }`,
+    { slug: params.slug }
+  );
+
+  if (!post || !post.body) {
+    return {};
+  }
+
+  // 本文中の最初のYouTubeリンクを探す
+  const linkCardBlock = post.body.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
+  
+  if (linkCardBlock) {
+    const ogpData = await fetchOgp(linkCardBlock.url);
+    if (ogpData?.image) {
+      return {
+        openGraph: {
+          images: [{ url: ogpData.image }],
+        },
+        twitter: {
+          images: [{ url: ogpData.image }],
+        },
+      };
+    }
+  }
+
+  return {};
+}
 
 // --- メインコンポーネント ---
 export default async function PostPage({ params }: { params: { slug: string } }) {
