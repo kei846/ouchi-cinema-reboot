@@ -91,6 +91,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
       title,
       excerpt,
       body,
+      mainImage,
       "seriesTitle": series->title,
       "seriesSlug": series->slug.current,
       tags
@@ -108,8 +109,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const processedBody = await Promise.all(
     post.body.map(async (block: any) => {
       if (block._type === 'linkCard' && block.url) {
-        const ogpData = await fetchOgp(block.url);
-        return { ...block, ogp: ogpData }; // OGP情報をブロックに埋め込む
+        let ogpData = await fetchOgp(block.url);
+
+        // YouTube URLで、OGP取得に失敗した場合のみフォールバック
+        if (!ogpData && block.url.includes('youtu') && post.mainImage) {
+          ogpData = { image: imageUrlBuilder(client).image(post.mainImage).url() };
+        }
+        
+        return { ...block, ogp: ogpData };
       }
       return block;
     })
