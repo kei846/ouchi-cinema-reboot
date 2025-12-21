@@ -56,17 +56,14 @@ export async function generateMetadata({ params }: { params: { slug:string } }):
     openGraph: {
       title: post.title,
       description: post.excerpt,
+      ...(imageUrl && { images: [{ url: imageUrl }] }),
     },
     twitter: {
       title: post.title,
       description: post.excerpt,
+      ...(imageUrl && { images: [{ url: imageUrl }] }),
     },
   };
-
-  if (imageUrl) {
-    metadata.openGraph.images = [{ url: imageUrl }];
-    metadata.twitter.images = [{ url: imageUrl }];
-  }
 
   return metadata;
 }
