@@ -1,43 +1,65 @@
 // src/lib/fetchOgp.ts
 import 'server-only';
-import * as cheerio from 'cheerio';
 
 export const dynamic = 'force-dynamic';
 
-export async function fetchOgp(url: string) {
-  try {
-    const { hostname } = new URL(url);
-    const allowedHostnames = ['youtube.com', 'www.youtube.com', 'youtu.be'];
+function getYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+  ];
 
-    if (!allowedHostnames.includes(hostname)) {
-      return null;
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
     }
+  }
+  return null;
+}
 
-    const res = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        'user-agent': 'Mozilla/5.0',
-      },
+export async function fetchOgp(url: string): Promise<{ image: string } | null> {
+  const videoId = getYouTubeVideoId(url);
+
+  if (!videoId) {
+    // YouTube以外のURLは対象外
+    return null;
+  }
+
+  const apiKey = process.env.YOUTUBE_API_KEY;
+
+  if (!apiKey) {
+    console.error('YouTube API key is not set.');
+    return null;
+  }
+
+  const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
+
+  try {
+    const res = await fetch(apiUrl, {
+      // Next.jsのfetchキャッシュを使用し、1日キャッシュする
+      next: { revalidate: 86400 },
     });
 
     if (!res.ok) {
-      console.error(`Failed to fetch OGP from ${url}: ${res.statusText}`);
+      console.error(`Failed to fetch from YouTube API: ${res.statusText}`);
       return null;
     }
 
-    const html = await res.text();
-    const $ = cheerio.load(html);
+    const data = await res.json();
+    const item = data.items?.[0];
+    const thumbnailUrl = item?.snippet?.thumbnails?.standard?.url || item?.snippet?.thumbnails?.high?.url;
 
-    const image = $('meta[property="og:image"]').attr('content');
-
-    if (image) {
-      return { image };
+    if (thumbnailUrl) {
+      return { image: thumbnailUrl };
     }
 
     return null;
   } catch (error) {
-    console.error(`Error fetching OGP for ${url}:`, error);
+    console.error('Error fetching from YouTube API:', error);
     return null;
   }
 }
+
 
