@@ -20,7 +20,8 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await sanityPublicClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
-      body
+      body,
+      mainImage
     }`,
     { slug: params.slug }
   );
@@ -29,21 +30,32 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return {};
   }
 
+  let imageUrl: string | undefined;
+
   // 本文中の最初のYouTubeリンクを探す
   const linkCardBlock = post.body.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
   
   if (linkCardBlock) {
     const ogpData = await fetchOgp(linkCardBlock.url);
     if (ogpData?.image) {
-      return {
-        openGraph: {
-          images: [{ url: ogpData.image }],
-        },
-        twitter: {
-          images: [{ url: ogpData.image }],
-        },
-      };
+      imageUrl = ogpData.image;
     }
+  }
+
+  // YouTube OGP画像が取得できなかった場合、mainImageをフォールバックとして使用
+  if (!imageUrl && post.mainImage) {
+    imageUrl = imageUrlBuilder(sanityPublicClient).image(post.mainImage).url();
+  }
+
+  if (imageUrl) {
+    return {
+      openGraph: {
+        images: [{ url: imageUrl }],
+      },
+      twitter: {
+        images: [{ url: imageUrl }],
+      },
+    };
   }
 
   return {};
