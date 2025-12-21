@@ -17,24 +17,26 @@ export const revalidate = 0; // ページレベルのキャッシュを無効に
 export const dynamic = 'force-dynamic';
 
 // --- メタデータ生成 ---
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug:string } }): Promise<Metadata> {
   const post = await sanityPublicClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
+      title,
+      excerpt,
       body,
       mainImage
     }`,
     { slug: params.slug }
   );
 
-  if (!post || !post.body) {
+  if (!post) {
     return {};
   }
 
   let imageUrl: string | undefined;
 
   // 本文中の最初のYouTubeリンクを探す
-  const linkCardBlock = post.body.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
-  
+  const linkCardBlock = post.body?.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
+
   if (linkCardBlock) {
     const ogpData = await fetchOgp(linkCardBlock.url);
     if (ogpData?.image) {
@@ -47,18 +49,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     imageUrl = imageUrlBuilder(sanityPublicClient).image(post.mainImage).url();
   }
 
+  // メタデータを構成
+  const metadata: Metadata = {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+    },
+    twitter: {
+      title: post.title,
+      description: post.excerpt,
+    },
+  };
+
   if (imageUrl) {
-    return {
-      openGraph: {
-        images: [{ url: imageUrl }],
-      },
-      twitter: {
-        images: [{ url: imageUrl }],
-      },
-    };
+    metadata.openGraph.images = [{ url: imageUrl }];
+    metadata.twitter.images = [{ url: imageUrl }];
   }
 
-  return {};
+  return metadata;
 }
 
 // --- メインコンポーネント ---
