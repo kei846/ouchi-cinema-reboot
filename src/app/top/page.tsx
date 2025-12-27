@@ -87,6 +87,15 @@ name, "link": "/goods/" + slug.current, color }`,
           sanityPublicClient.fetch(queries.harryPotterList),
         ]);
 
+        console.log("Fetched Data:", {
+          newPosts,
+          recommendedPosts,
+          deepPosts,
+          seriesItems,
+          goodsItems,
+          harryPotterPosts,
+        });
+
         // Filter out posts with no slug before setting state to prevent errors
         setNewList(newPosts.filter((p: Post) => p.slug?.current));
         setRecommendList(recommendedPosts.filter((p: Post) => p.slug?.current));
