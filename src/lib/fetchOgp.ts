@@ -38,16 +38,22 @@ export async function fetchOgp(url: string): Promise<{ image: string } | null> {
 
   try {
     const res = await fetch(apiUrl, {
-      // Next.jsのfetchキャッシュを使用し、1日キャッシュする
-      next: { revalidate: 86400 },
+      cache: 'no-store', // キャッシュを完全に無効化
+      headers: {
+        Referer: 'https://ouchi-cinema-reboot.vercel.app',
+      },
     });
 
     if (!res.ok) {
       console.error(`Failed to fetch from YouTube API: ${res.statusText}`);
+      const errorBody = await res.json().catch(() => ({ message: 'Could not parse error body as JSON.' }));
+      console.error('YouTube API Error Body (Production):', JSON.stringify(errorBody, null, 2));
       return null;
     }
 
     const data = await res.json();
+    console.log('YouTube API Success Response (Production):', JSON.stringify(data, null, 2)); // 成功時もログに出力
+
     const item = data.items?.[0];
     const thumbnailUrl = item?.snippet?.thumbnails?.standard?.url || item?.snippet?.thumbnails?.high?.url;
 
@@ -57,7 +63,7 @@ export async function fetchOgp(url: string): Promise<{ image: string } | null> {
 
     return null;
   } catch (error) {
-    console.error('Error fetching from YouTube API:', error);
+    console.error('Error fetching from YouTube API (Production):', error);
     return null;
   }
 }
