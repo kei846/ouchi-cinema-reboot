@@ -120,7 +120,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
         // YouTube URLで、OGP取得に失敗した場合のみフォールバック
         if (!ogpData && block.url.includes('youtu') && post.mainImage) {
-          ogpData = { image: imageUrlBuilder(client).image(post.mainImage).url() };
+          ogpData = {
+            image: imageUrlBuilder(client).image(post.mainImage).url(),
+            title: post.title,
+            description: post.excerpt,
+          };
         }
         
         return { ...block, ogp: ogpData };
