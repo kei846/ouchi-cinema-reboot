@@ -208,7 +208,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             href={value.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="my-6 block border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden no-underline prose-p:my-0"
+            className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden"
           >
             {value.ogp.image && (
               <div className="relative w-full aspect-video">
@@ -220,16 +220,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 />
               </div>
             )}
-            <div className="p-4 bg-gray-50">
-              <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mt-0 mb-1">
-                {value.ogp.title}
-              </h3>
-              {value.ogp.description && (
-                <p className="text-sm text-gray-600 line-clamp-2 m-0">
-                  {value.ogp.description}
-                </p>
-              )}
-            </div>
           </a>
         );
       },
