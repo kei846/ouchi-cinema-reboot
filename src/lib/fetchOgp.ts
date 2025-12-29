@@ -19,11 +19,10 @@ function getYouTubeVideoId(url: string): string | null {
   return null;
 }
 
-export async function fetchOgp(url: string): Promise<{ image: string } | null> {
+export async function fetchOgp(url: string): Promise<{ image: string; title: string; description: string; } | null> {
   const videoId = getYouTubeVideoId(url);
 
   if (!videoId) {
-    // YouTube以外のURLは対象外
     return null;
   }
 
@@ -38,7 +37,7 @@ export async function fetchOgp(url: string): Promise<{ image: string } | null> {
 
   try {
     const res = await fetch(apiUrl, {
-      cache: 'no-store', // キャッシュを完全に無効化
+      next: { revalidate: 86400 }, // Re-enable 1-day caching
       headers: {
         Referer: 'https://ouchi-cinema-reboot.vercel.app',
       },
@@ -46,24 +45,26 @@ export async function fetchOgp(url: string): Promise<{ image: string } | null> {
 
     if (!res.ok) {
       console.error(`Failed to fetch from YouTube API: ${res.statusText}`);
-      const errorBody = await res.json().catch(() => ({ message: 'Could not parse error body as JSON.' }));
-      console.error('YouTube API Error Body (Production):', JSON.stringify(errorBody, null, 2));
+      // In production, we don't want to leak detailed error bodies.
       return null;
     }
 
     const data = await res.json();
-    console.log('YouTube API Success Response (Production):', JSON.stringify(data, null, 2)); // 成功時もログに出力
-
     const item = data.items?.[0];
-    const thumbnailUrl = item?.snippet?.thumbnails?.standard?.url || item?.snippet?.thumbnails?.high?.url;
+    const snippet = item?.snippet;
+    const thumbnailUrl = snippet?.thumbnails?.standard?.url || snippet?.thumbnails?.high?.url;
 
-    if (thumbnailUrl) {
-      return { image: thumbnailUrl };
+    if (thumbnailUrl && snippet) {
+      return { 
+        image: thumbnailUrl,
+        title: snippet.title,
+        description: snippet.description,
+      };
     }
 
     return null;
   } catch (error) {
-    console.error('Error fetching from YouTube API (Production):', error);
+    console.error('Error fetching from YouTube API:', error);
     return null;
   }
 }

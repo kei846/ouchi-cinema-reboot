@@ -196,11 +196,38 @@ export default async function PostPage({ params }: { params: { slug: string } })
         );
       },
       linkCard: ({ value }: any) => {
-        if (!value?.url || !value?.ogp) { // ogpがnullの場合もレンダリングしない
+        if (!value?.url || !value?.ogp) {
           return null;
         }
-        // OGP情報が埋め込まれたブロックを受け取り、LinkCardに渡す
-        return <LinkCard ogp={value.ogp} url={value.url} />;
+        return (
+          <a
+            href={value.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="my-6 block border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden no-underline prose-p:my-0"
+          >
+            {value.ogp.image && (
+              <div className="relative w-full aspect-video">
+                <Image
+                  src={value.ogp.image}
+                  alt={value.ogp.title || 'YouTube thumbnail'}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="p-4 bg-gray-50">
+              <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mt-0 mb-1">
+                {value.ogp.title}
+              </h3>
+              {value.ogp.description && (
+                <p className="text-sm text-gray-600 line-clamp-2 m-0">
+                  {value.ogp.description}
+                </p>
+              )}
+            </div>
+          </a>
+        );
       },
     },
     block: {
