@@ -8,13 +8,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import TableOfContents from '@/components/TableOfContents'; // Import the new component
-import LinkCard from '@/components/LinkCard'; // LinkCardコンポーネントをインポート
-import { fetchOgp } from '@/lib/fetchOgp'; // fetchOgp関数をインポート
-
-// export const revalidate = 60; // revalidateTagを使うため、ページレベルのrevalidateは削除または調整
-export const revalidate = 0; // ページレベルのキャッシュを無効にする
-export const dynamic = 'force-dynamic';
+import TableOfContents from '@/components/TableOfContents';
+import { fetchOgp } from '@/lib/fetchOgp';
 
 // --- メタデータ生成 ---
 export async function generateMetadata({ params }: { params: { slug:string } }): Promise<Metadata> {
@@ -23,7 +18,8 @@ export async function generateMetadata({ params }: { params: { slug:string } }):
       title,
       excerpt,
       body,
-      mainImage
+      mainImage,
+      mainImageUrl
     }`,
     { slug: params.slug }
   );
@@ -32,24 +28,24 @@ export async function generateMetadata({ params }: { params: { slug:string } }):
     return {};
   }
 
-  let imageUrl: string | undefined;
+  let imageUrl: string | undefined = post.mainImageUrl;
 
-  // 本文中の最初のYouTubeリンクを探す
-  const linkCardBlock = post.body?.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
-
-  if (linkCardBlock) {
-    const ogpData = await fetchOgp(linkCardBlock.url);
-    if (ogpData?.image) {
-      imageUrl = ogpData.image;
+  // If no mainImageUrl, try to fetch from YouTube link
+  if (!imageUrl) {
+    const linkCardBlock = post.body?.find((block: any) => block._type === 'linkCard' && block.url?.includes('youtu'));
+    if (linkCardBlock) {
+      const ogpData = await fetchOgp(linkCardBlock.url);
+      if (ogpData?.image) {
+        imageUrl = ogpData.image;
+      }
     }
   }
 
-  // YouTube OGP画像が取得できなかった場合、mainImageをフォールバックとして使用
+  // Fallback to mainImage if still no image
   if (!imageUrl && post.mainImage) {
     imageUrl = imageUrlBuilder(sanityPublicClient).image(post.mainImage).url();
   }
 
-  // メタデータを構成
   const metadata: Metadata = {
     title: post.title,
     description: post.excerpt,
@@ -99,26 +95,23 @@ export default async function PostPage({ params }: { params: { slug: string } })
       excerpt,
       body,
       mainImage,
+      mainImageUrl,
       "seriesTitle": series->title,
       "seriesSlug": series->slug.current,
       tags
     }`,
     { slug: params.slug },
     {
-      cache: 'no-store', // 常に最新のデータを取得
-      // tags: ['posts'], // revalidateTagと連携させるためのタグ
+      cache: 'no-store',
     }
   );
 
   if (!post || !post.body) notFound();
 
-  // --- LinkCardのOGP情報をサーバーサイドで取得し、bodyに埋め込む ---
   const processedBody = await Promise.all(
     post.body.map(async (block: any) => {
       if (block._type === 'linkCard' && block.url) {
         let ogpData = await fetchOgp(block.url);
-
-        // YouTube URLで、OGP取得に失敗した場合のみフォールバック
         if (!ogpData && block.url.includes('youtu') && post.mainImage) {
           ogpData = {
             image: imageUrlBuilder(client).image(post.mainImage).url(),
@@ -126,98 +119,63 @@ export default async function PostPage({ params }: { params: { slug: string } })
             description: post.excerpt,
           };
         }
-        
         return { ...block, ogp: ogpData };
       }
       return block;
     })
   );
 
-  // 他の記事を取得
   const otherPosts = await client.fetch(
     `*[_type == "post" && _id != $currentId] | order(publishedAt desc)[0...3]{
       _id,
       title,
       slug,
-      mainImage
+      mainImage,
+      mainImageUrl
     }`,
     { currentId: post._id },
     {
-      cache: 'no-store', // 常に最新のデータを取得
-      // tags: ['posts'], // 全ての記事リストのキャッシュを無効化するタグ
+      cache: 'no-store',
     }
   );
 
-  // --- ヘルパー関数 ---
-  // テキストをURLに適したIDに変換 (日本語対応)
   const slugify = (text: string): string => {
-    return text
-      .toLowerCase()
-      .replace(/「|」|『|』/g, '') // 日本語の引用符を削除
-      .replace(/[^\p{L}\p{N}\s-]+/gu, '') // Unicodeの文字、数字、スペース、ハイフン以外を削除 (uフラグ必須)
-      .replace(/\s+/g, '-'); // スペースをハイフンに
+    return text.toLowerCase().replace(/「|」|『|』/g, '').replace(/[^\p{L}\p{N}\s-]+/gu, '').replace(/\s+/g, '-');
   };
 
-  // Portable Textのブロックからプレーンテキストを取得
   const getBlockText = (block: any): string => {
-    // block.children は Portable Text の span の配列
     return block.children?.map((child: any) => child.text).join('') || '';
   };
 
-  // --- 目次用の見出し（h2, h3）を抽出 ---
-  const headings = processedBody // 処理済みのbodyを使用
+  const headings = processedBody
     .filter((block: any) => {
       const isHeading = block._type === 'block' && ['h2', 'h3'].includes(block.style);
       return isHeading;
     })
     .map((block: any) => ({
-      _key: block._key, // Portable Textの_keyを保持
-      style: block.style, // h2 or h3
-      text: getBlockText(block), // プレーンテキスト
-      id: slugify(getBlockText(block)), // ページ内リンク用のID
+      _key: block._key,
+      style: block.style,
+      text: getBlockText(block),
+      id: slugify(getBlockText(block)),
     }));
 
-  // --- Custom PortableText Components ---
-  // 見出しにidを付与し、基本的なマークアップを定義
   const portableTextComponents = {
     types: {
       image: ({ value }: any) => {
-        if (!value?.asset?._ref) {
-          return null;
-        }
+        if (!value?.asset?._ref) return null;
         return (
-          <div className="my-8 flex justify-center relative w-full h-96"> {/* 親要素にrelativeとサイズを指定 */}
-            <Image
-              src={urlFor(value).fit('max').auto('format').url()} // widthを削除
-              alt={value.alt || ' '}
-              fill // fillプロパティを追加
-              style={{ objectFit: 'contain' }} // 画像が親要素に収まるように調整
-              sizes="(max-width: 768px) 100vw, 800px" // レスポンシブなサイズ指定
-              className="rounded-lg"
-              loading="lazy"
-            />
+          <div className="my-8 flex justify-center relative w-full h-96">
+            <Image src={urlFor(value).fit('max').auto('format').url()} alt={value.alt || ' '} fill style={{ objectFit: 'contain' }} sizes="(max-width: 768px) 100vw, 800px" className="rounded-lg" loading="lazy" />
           </div>
         );
       },
       linkCard: ({ value }: any) => {
-        if (!value?.url || !value?.ogp) {
-          return null;
-        }
+        if (!value?.url || !value?.ogp) return null;
         return (
-          <a
-            href={value.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden"
-          >
+          <a href={value.url} target="_blank" rel="noopener noreferrer" className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden">
             {value.ogp.image && (
               <div className="relative w-full aspect-video">
-                <Image
-                  src={value.ogp.image}
-                  alt={value.ogp.title || 'YouTube thumbnail'}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={value.ogp.image} alt={value.ogp.title || 'YouTube thumbnail'} fill className="object-cover" />
               </div>
             )}
           </a>
@@ -225,36 +183,15 @@ export default async function PostPage({ params }: { params: { slug: string } })
       },
     },
     block: {
-      h2: ({ value, children }: any) => {
-        const id = slugify(getBlockText(value));
-        return (
-          <h2 id={id} className="mt-12 mb-4 text-2xl font-bold">
-            {children}
-          </h2>
-        );
-      },
-      h3: ({ value, children }: any) => {
-        const id = slugify(getBlockText(value));
-        return (
-          <h3 id={id} className="mt-8 mb-3 text-xl font-bold">
-            {children}
-          </h3>
-        );
-      },
+      h2: ({ value, children }: any) => <h2 id={slugify(getBlockText(value))} className="mt-12 mb-4 text-2xl font-bold">{children}</h2>,
+      h3: ({ value, children }: any) => <h3 id={slugify(getBlockText(value))} className="mt-8 mb-3 text-xl font-bold">{children}</h3>,
       normal: ({ children }: any) => <p className="mb-4">{children}</p>,
       blockquote: ({ children }: any) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">{children}</blockquote>,
     },
     marks: {
       strong: ({ children }: any) => <strong>{children}</strong>,
       em: ({ children }: any) => <em>{children}</em>,
-      link: ({ value, children }: any) => {
-        const { href } = value;
-        return (
-          <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-            {children}
-          </a>
-        );
-      },
+      link: ({ value, children }: any) => <a href={value.href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{children}</a>,
     },
     list: {
       bullet: ({ children }: any) => <ul className="list-disc pl-5 my-4">{children}</ul>,
@@ -268,45 +205,36 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   return (
     <main className="bg-white text-gray-800 min-h-screen px-6 py-16 sm:py-24">
-      <div className="max-w-3xl mx-auto"> {/* Removed flexbox classes */}
-        {/* ページヘッダー */}
+      <div className="max-w-3xl mx-auto">
         <header className="mb-12">
           {post.seriesTitle && post.seriesSlug && (
-            <Link
-              href={`/series/${post.seriesSlug}`}
-              className="text-sm text-indigo-500 hover:text-indigo-700 transition mb-2 block"
-            >
+            <Link href={`/series/${post.seriesSlug}`} className="text-sm text-indigo-500 hover:text-indigo-700 transition mb-2 block">
               シリーズ: {post.seriesTitle}
             </Link>
           )}
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
-            {post.title}
-          </h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">{post.title}</h1>
           <p className="text-lg text-gray-500">{post.excerpt}</p>
         </header>
 
-        {/* 目次エリア */}
         {headings.length > 0 && (
-          <div className="mb-8"> {/* Added margin-bottom */}
+          <div className="mb-8">
             <TableOfContents headings={headings} />
           </div>
         )}
 
-        {/* 本文 */}
         <article className="prose prose-lg max-w-none prose-neutral">
           <PortableText value={processedBody} components={portableTextComponents} />
         </article>
 
-        {/* 他の記事も読む */}
         <section className="mt-16 pt-8 border-t border-gray-200">
           <h2 className="text-2xl font-bold text-center mb-8">他の記事も読む</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {otherPosts.map((p: any) => (
               <Link href={`/post/${p.slug.current}`} key={p._id} className="group block bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div className="relative aspect-video">
-                  {p.mainImage ? (
+                  { (p.mainImageUrl || p.mainImage) ? (
                     <Image
-                      src={urlFor(p.mainImage).width(400).height(225).fit('crop').auto('format').url()}
+                      src={p.mainImageUrl || urlFor(p.mainImage).width(400).height(225).fit('crop').auto('format').url()}
                       alt={p.title}
                       fill
                       className="object-cover rounded-t-lg"
@@ -325,12 +253,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
         </section>
 
-        {/* トップページに戻るボタン */}
         <div className="mt-12 text-center">
-          <Link
-            href="/top"
-            className="inline-flex items-center px-6 py-3 border border-gray-700 rounded-md text-sm font-medium text-gray-700 hover:bg-black hover:text-white transition-all duration-300"
-          >
+          <Link href="/top" className="inline-flex items-center px-6 py-3 border border-gray-700 rounded-md text-sm font-medium text-gray-700 hover:bg-black hover:text-white transition-all duration-300">
             Back to Top
           </Link>
         </div>

@@ -45,6 +45,13 @@ export default defineType({
       title: 'メイン画像',
       type: 'image',
       options: { hotspot: true },
+      description: '手動でアップロードする場合のメイン画像です。',
+    }),
+    defineField({
+      name: 'mainImageUrl',
+      title: 'サムネイルURL',
+      type: 'url',
+      description: '記事内のYouTubeリンクから自動取得したサムネイルURL。設定されている場合、メイン画像よりこちらが優先されます。',
     }),
     defineField({
       name: 'excerpt',
