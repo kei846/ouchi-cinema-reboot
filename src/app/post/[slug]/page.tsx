@@ -175,7 +175,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           <a href={value.url} target="_blank" rel="noopener noreferrer" className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden">
             {value.ogp.image && (
               <div className="relative w-full aspect-video">
-                <Image src={value.ogp.image} alt={value.ogp.title || 'YouTube thumbnail'} fill className="object-cover" />
+                <Image src={value.ogp.image} alt={value.ogp.title || 'YouTube thumbnail'} fill className="object-contain" />
               </div>
             )}
           </a>
