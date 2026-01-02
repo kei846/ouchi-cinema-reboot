@@ -169,35 +169,36 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
         );
       },
-      linkCard: ({ value }: any) => {
-        if (!value?.url || !value?.ogp?.image) {
-          return null;
-        }
-        return (
-          <a
-            href={value.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden"
-          >
-            <div className="relative w-full aspect-video bg-black">
-              {/* Background Blurred Image */}
-              <Image
-                src={value.ogp.image}
-                alt=""
-                fill
-                className="object-cover filter blur-xl scale-110 brightness-75"
-              />
-              {/* Foreground Contained Image */}
-                        <Image
-                          src={value.ogp.image}
-                          alt={value.ogp.title || 'YouTube thumbnail'}
-                          fill
-                          className="object-contain drop-shadow-lg"
-                        />            </div>
-          </a>
-        );
-      },
+            linkCard: ({ value }: any) => {
+              if (!value?.url || !value?.ogp?.image) {
+                return null;
+              }
+              return (
+                <a
+                  href={value.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="my-6 block group"
+                >
+                  <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow duration-200 ease-in-out">
+                    {/* Background Blurred Image */}
+                    <Image
+                      src={value.ogp.image}
+                      alt=""
+                      fill
+                      className="object-cover filter blur-xl scale-110 brightness-75"
+                    />
+                    {/* Foreground Contained Image */}
+                    <Image
+                      src={value.ogp.image}
+                      alt={value.ogp.title || 'YouTube thumbnail'}
+                      fill
+                      className="object-contain drop-shadow-lg"
+                    />
+                  </div>
+                </a>
+              );
+            },
     },
     block: {
       h2: ({ value, children }: any) => <h2 id={slugify(getBlockText(value))} className="mt-12 mb-4 text-2xl font-bold">{children}</h2>,
