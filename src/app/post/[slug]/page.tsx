@@ -189,13 +189,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 className="object-cover filter blur-xl scale-110 brightness-75"
               />
               {/* Foreground Contained Image */}
-              <Image
-                src={value.ogp.image}
-                alt={value.ogp.title || 'YouTube thumbnail'}
-                fill
-                className="object-contain"
-              />
-            </div>
+                        <Image
+                          src={value.ogp.image}
+                          alt={value.ogp.title || 'YouTube thumbnail'}
+                          fill
+                          className="object-contain drop-shadow-lg"
+                        />            </div>
           </a>
         );
       },
