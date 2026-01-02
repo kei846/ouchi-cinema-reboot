@@ -170,14 +170,32 @@ export default async function PostPage({ params }: { params: { slug: string } })
         );
       },
       linkCard: ({ value }: any) => {
-        if (!value?.url || !value?.ogp) return null;
+        if (!value?.url || !value?.ogp?.image) {
+          return null;
+        }
         return (
-          <a href={value.url} target="_blank" rel="noopener noreferrer" className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden">
-            {value.ogp.image && (
-              <div className="relative w-full aspect-video">
-                <Image src={value.ogp.image} alt={value.ogp.title || 'YouTube thumbnail'} fill className="object-contain" />
-              </div>
-            )}
+          <a
+            href={value.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="my-6 block rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out overflow-hidden"
+          >
+            <div className="relative w-full aspect-video bg-black">
+              {/* Background Blurred Image */}
+              <Image
+                src={value.ogp.image}
+                alt=""
+                fill
+                className="object-cover filter blur-xl scale-110 brightness-75"
+              />
+              {/* Foreground Contained Image */}
+              <Image
+                src={value.ogp.image}
+                alt={value.ogp.title || 'YouTube thumbnail'}
+                fill
+                className="object-contain"
+              />
+            </div>
           </a>
         );
       },
