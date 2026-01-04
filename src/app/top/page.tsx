@@ -97,9 +97,9 @@ export default function TopPage() {
     let particles: Particle[] = [];
     let shootingStars: ShootingStar[] = [];
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = document.documentElement.scrollHeight;
+    function resizeCanvas(canvasElement: HTMLCanvasElement) {
+        canvasElement.width = window.innerWidth;
+        canvasElement.height = document.documentElement.scrollHeight;
     }
 
     class Particle {
@@ -176,8 +176,8 @@ export default function TopPage() {
         animationFrameId = requestAnimationFrame(animate);
     }
     
-    const handleResize = () => { resizeCanvas(); init(); }
-    resizeCanvas();
+    const handleResize = () => { resizeCanvas(canvas); init(); }
+    resizeCanvas(canvas);
     init();
     animate();
     window.addEventListener('resize', handleResize);
