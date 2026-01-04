@@ -95,20 +95,21 @@ export default function TopPage() {
       let particles: Particle[] = [];
       let shootingStars: ShootingStar[] = [];
 
-      class Particle {
-        x: number; y: number; size: number; speedX: number; speedY: number;
-        baseOpacity: number; opacity: number; opacitySpeed: number;
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 1.5 + 0.5;
-            this.speedX = (Math.random() * 0.4 - 0.2);
-            this.speedY = (Math.random() * 0.4 - 0.2);
-            this.baseOpacity = Math.random() * 0.4 + 0.1;
-            this.opacity = this.baseOpacity;
-            this.opacitySpeed = Math.random() * 0.02 + 0.01;
-        }
-        update() {
+            class Particle {
+                x: number; y: number; size: number; speedX: number; speedY: number;
+                baseOpacity: number; opacity: number; opacitySpeed: number;
+                constructor() {
+                    const currentWidth = (typeof window !== 'undefined' && canvas) ? canvas.width : 0;
+                    const currentHeight = (typeof window !== 'undefined' && canvas) ? canvas.height : 0;
+                    this.x = Math.random() * currentWidth;
+                    this.y = Math.random() * currentHeight;
+                    this.size = Math.random() * 1.5 + 0.5;
+                    this.speedX = (Math.random() * 0.4 - 0.2);
+                    this.speedY = (Math.random() * 0.4 - 0.2);
+                    this.baseOpacity = Math.random() * 0.4 + 0.1;
+                    this.opacity = this.baseOpacity;
+                    this.opacitySpeed = Math.random() * 0.02 + 0.01;
+                }        update() {
             this.x += this.speedX;
             this.y += this.speedY;
             this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
