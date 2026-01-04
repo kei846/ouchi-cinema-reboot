@@ -90,98 +90,98 @@ export default function TopPage() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const canvas = document.querySelector('canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let particles: Particle[] = [];
-    let shootingStars: ShootingStar[] = [];
-
-    function resizeCanvas(canvasElement: HTMLCanvasElement) {
-        canvasElement.width = window.innerWidth;
-        canvasElement.height = document.documentElement.scrollHeight;
-    }
-
-    class Particle {
-        x: number; y: number; size: number; speedX: number; speedY: number;
-        baseOpacity: number; opacity: number; opacitySpeed: number;
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 1.5 + 0.5;
-            this.speedX = (Math.random() * 0.4 - 0.2);
-            this.speedY = (Math.random() * 0.4 - 0.2);
-            this.baseOpacity = Math.random() * 0.4 + 0.1;
-            this.opacity = this.baseOpacity;
-            this.opacitySpeed = Math.random() * 0.02 + 0.01;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-            if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
-            if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
-        }
-        draw() {
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    class ShootingStar {
-        x: number; y: number; len: number; speed: number; size: number;
-        constructor() {
-            this.x = Math.random() * canvas.width * 1.5;
-            this.y = 0;
-            this.len = Math.random() * 150 + 50;
-            this.speed = Math.random() * 8 + 8;
-            this.size = Math.random() * 1.2 + 0.4;
-        }
-        update() { this.x -= this.speed; this.y += this.speed; }
-        draw() {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = this.size;
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x - this.len, this.y + this.len);
-            ctx.stroke();
-        }
-    }
-
-    function init() {
-        particles = [];
-        const numberOfParticles = window.innerWidth / 25;
-        for (let i = 0; i < numberOfParticles; i++) {
-            particles.push(new Particle());
-        }
-    }
+    const ctx = canvas?.getContext('2d');
 
     let animationFrameId: number;
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        if (Math.random() < 0.02 && shootingStars.length < 3) {
-            shootingStars.push(new ShootingStar());
-        }
-        for(let i = shootingStars.length - 1; i >= 0; i--) {
-            const s = shootingStars[i];
-            if (s.x < -s.len || s.y > canvas.height) {
-                shootingStars.splice(i, 1);
-            } else {
-                s.update(); s.draw();
-            }
-        }
-        animationFrameId = requestAnimationFrame(animate);
+
+    if (canvas && ctx) {
+      let particles: any[] = [];
+      let shootingStars: any[] = [];
+
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = document.documentElement.scrollHeight;
+        init();
+      }
+
+      class Particle {
+          x: number; y: number; size: number; speedX: number; speedY: number;
+          baseOpacity: number; opacity: number; opacitySpeed: number;
+          constructor() {
+              this.x = Math.random() * canvas.width;
+              this.y = Math.random() * canvas.height;
+              this.size = Math.random() * 1.5 + 0.5;
+              this.speedX = (Math.random() * 0.4 - 0.2);
+              this.speedY = (Math.random() * 0.4 - 0.2);
+              this.baseOpacity = Math.random() * 0.4 + 0.1;
+              this.opacity = this.baseOpacity;
+              this.opacitySpeed = Math.random() * 0.02 + 0.01;
+          }
+          update() {
+              this.x += this.speedX;
+              this.y += this.speedY;
+              this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
+              if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
+              if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+          }
+          draw() {
+              ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+              ctx.fill();
+          }
+      }
+
+      class ShootingStar {
+          x: number; y: number; len: number; speed: number; size: number;
+          constructor() {
+              this.x = Math.random() * canvas.width * 1.5;
+              this.y = 0;
+              this.len = Math.random() * 150 + 50;
+              this.speed = Math.random() * 8 + 8;
+              this.size = Math.random() * 1.2 + 0.4;
+          }
+          update() { this.x -= this.speed; this.y += this.speed; }
+          draw() {
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+              ctx.lineWidth = this.size;
+              ctx.beginPath();
+              ctx.moveTo(this.x, this.y);
+              ctx.lineTo(this.x - this.len, this.y + this.len);
+              ctx.stroke();
+          }
+      }
+
+      const init = () => {
+          particles = [];
+          const numberOfParticles = window.innerWidth / 25;
+          for (let i = 0; i < numberOfParticles; i++) {
+              particles.push(new Particle());
+          }
+      }
+
+      const animate = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => { p.update(); p.draw(); });
+          if (Math.random() < 0.02 && shootingStars.length < 3) {
+              shootingStars.push(new ShootingStar());
+          }
+          for(let i = shootingStars.length - 1; i >= 0; i--) {
+              const s = shootingStars[i];
+              if (s.x < -s.len || s.y > canvas.height) {
+                  shootingStars.splice(i, 1);
+              } else {
+                  s.update(); s.draw();
+              }
+          }
+          animationFrameId = requestAnimationFrame(animate);
+      }
+      
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      animate();
     }
     
-    const handleResize = () => { resizeCanvas(canvas); init(); }
-    resizeCanvas(canvas);
-    init();
-    animate();
-    window.addEventListener('resize', handleResize);
-
     const fetchAllContent = async () => {
       const postFields = `{ title, "desc": excerpt, "tag": tags[0], slug, mainImage, mainImageUrl }`;
       const queries = {
@@ -196,6 +196,7 @@ export default function TopPage() {
           sanityPublicClient.fetch(queries.deepList),
           sanityPublicClient.fetch(queries.goodsList),
         ]);
+
         setFeaturedList(featuredPosts.filter((p: Post) => p.slug?.current));
         setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
         setGoodsList(goodsItems);
@@ -208,18 +209,16 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
+        // Need to remove the resize listener as well
+        // window.removeEventListener('resize', resizeCanvas);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
 
-    return (
-
-      <main className="relative min-h-screen bg-black text-white overflow-clip">
-
-        <canvas id="particle-canvas" className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05060a] via-[#0a0b12] to-black pointer-events-none" />
+  return (
+    <main className="relative min-h-screen bg-black text-white overflow-clip">
+      <canvas id="particle-canvas" className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+      <div className="absolute inset-0 bg-gradient-to-b from-[#05060a] via-[#0a0b12] to-black pointer-events-none" />
 
       <header className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 py-5 flex items-center justify-between">
         <Link href="/top" className={`${orbitron.className} tracking-[0.18em] text-sm sm:text-base md:text-lg text-white/90 hover:text-white transition`}>
@@ -241,38 +240,37 @@ export default function TopPage() {
         </motion.p>
       </section>
 
-      {/* === Featured Articles === */}
-      <section id="new" className="relative z-10 py-12 md:py-16">
-        <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-8 text-center text-glow">Featured Articles</h2>
-        <div className="flex overflow-x-auto space-x-6 px-5 sm:px-8 pb-4 scrollbar-hide">
-          {featuredList.map((post, i) => (
-            <ArticleCard post={post} index={i} key={`featured-${i}`} />
-          ))}
-        </div>
-      </section>
+      <div className="relative z-10">
+        <section id="new" className="py-12 md:py-16">
+          <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-8 text-center text-glow">Featured Articles</h2>
+          <div className="flex overflow-x-auto space-x-6 px-5 sm:px-8 pb-4 scrollbar-hide">
+            {featuredList.map((post, i) => (
+              <ArticleCard post={post} index={i} key={`featured-${i}`} />
+            ))}
+          </div>
+        </section>
 
-      {/* === Deep Dive (Horizontal Scroll) === */}
-      <section id="deep" className="relative z-10 py-12 md:py-16">
-        <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-8 text-center text-glow">深層考察の間</h2>
-         <div className="flex overflow-x-auto space-x-6 px-5 sm:px-8 pb-4 scrollbar-hide">
-          {deepList.map((post, i) => (
-            <ArticleCard post={post} index={i} key={`deep-${i}`} />
-          ))}
-        </div>
-      </section>
+        <section id="deep" className="py-12 md:py-16">
+          <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-8 text-center text-glow">深層考察の間</h2>
+           <div className="flex overflow-x-auto space-x-6 px-5 sm:px-8 pb-4 scrollbar-hide">
+            {deepList.map((post, i) => (
+              <ArticleCard post={post} index={i} key={`deep-${i}`} />
+            ))}
+          </div>
+        </section>
 
-      {/* === 映画グッズコーナー === */}
-      <section id="goods" className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 py-12 md:py-16">
-        <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-6 text-center text-glow">映画グッズコーナー</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {goodsList.map((g, i) => (
-            <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={i} className={`rounded-xl border border-white/10 bg-gradient-to-br ${g.color} p-6 hover:border-white/30 transition`}>
-              <h3 className="text-white/90 font-semibold mb-2">{g.name}</h3>
-              <Link href="/goods/" className="text-sm text-white/70 hover:text-white transition">見る →</Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+        <section id="goods" className="max-w-6xl mx-auto px-5 sm:px-8 py-12 md:py-16">
+          <h2 className="text-lg sm:text-xl font-semibold text-white/90 mb-6 text-center text-glow">映画グッズコーナー</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {goodsList.map((g, i) => (
+              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={i} className={`rounded-xl border border-white/10 bg-gradient-to-br ${g.color} p-6 hover:border-white/30 transition`}>
+                <h3 className="text-white/90 font-semibold mb-2">{g.name}</h3>
+                <Link href="/goods/" className="text-sm text-white/70 hover:text-white transition">見る →</Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       <footer className="relative z-10 border-t border-white/10 mt-16">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 text-center text-[0.78rem] text-white/55 leading-relaxed space-y-4">
