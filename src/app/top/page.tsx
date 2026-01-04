@@ -27,9 +27,7 @@ interface Post {
   title: string;
   desc: string;
   tag?: string;
-  slug?: {
-    current: string;
-  };
+  slug?: { current: string; };
   mainImage?: any;
   mainImageUrl?: string;
 }
@@ -45,7 +43,6 @@ function urlFor(source: any) {
   return builder.image(source);
 }
 
-// Reusable Card Component
 const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
   <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md:w-80">
     <Link href={`/post/${post.slug?.current}`} className="block group">
@@ -66,7 +63,6 @@ const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
     </Link>
   </motion.div>
 );
-
 
 export default function TopPage() {
   const [featuredList, setFeaturedList] = useState<Post[]>([]);
@@ -96,37 +92,35 @@ export default function TopPage() {
     let resizeTimeout: NodeJS.Timeout;
 
     if (canvas && ctx) {
-      let particles: any[] = [];
-      let shootingStars: any[] = [];
+      let particles: Particle[] = [];
+      let shootingStars: ShootingStar[] = [];
 
       class Particle {
-          x: number; y: number; size: number; speedX: number; speedY: number;
-          baseOpacity: number; opacity: number; opacitySpeed: number;
-          constructor() {
-              const currentWidth = typeof canvas !== 'undefined' && canvas ? canvas.width : 0;
-              const currentHeight = typeof canvas !== 'undefined' && canvas ? canvas.height : 0;
-              this.x = Math.random() * currentWidth;
-              this.y = Math.random() * currentHeight;
-              this.size = Math.random() * 1.5 + 0.5;
-              this.speedX = (Math.random() * 0.4 - 0.2);
-              this.speedY = (Math.random() * 0.4 - 0.2);
-              this.baseOpacity = Math.random() * 0.4 + 0.1;
-              this.opacity = this.baseOpacity;
-              this.opacitySpeed = Math.random() * 0.02 + 0.01;
-          }
-          update() {
-              this.x += this.speedX;
-              this.y += this.speedY;
-              this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-              if (this.x < 0 || this.x > canvas.width) this.x = Math.random() * canvas.width;
-              if (this.y < 0 || this.y > canvas.height) this.y = Math.random() * canvas.height;
-          }
-          draw() {
-              ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-              ctx.beginPath();
-              ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-              ctx.fill();
-          }
+        x: number; y: number; size: number; speedX: number; speedY: number;
+        baseOpacity: number; opacity: number; opacitySpeed: number;
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 1.5 + 0.5;
+            this.speedX = (Math.random() * 0.4 - 0.2);
+            this.speedY = (Math.random() * 0.4 - 0.2);
+            this.baseOpacity = Math.random() * 0.4 + 0.1;
+            this.opacity = this.baseOpacity;
+            this.opacitySpeed = Math.random() * 0.02 + 0.01;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
+            if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
+            if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+        }
+        draw() {
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
       }
 
       class ShootingStar {
@@ -183,41 +177,39 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize(); // Initial setup
+      handleResize();
       animate();
       window.addEventListener('resize', handleResize);
-
-      const cleanup = () => {
-          window.removeEventListener('scroll', handleScroll);
-          window.removeEventListener('resize', handleResize);
-          cancelAnimationFrame(animationFrameId);
-          document.body.classList.remove('vibe-mode');
-      }
-      
-      const fetchAllContent = async () => {
-        const postFields = `{ title, "desc": excerpt, "tag": tags[0], slug, mainImage, mainImageUrl }`;
-        const queries = {
-          featuredList: `*[_type == "post"] | order(publishedAt desc) ${postFields}[0...6]`,
-          deepList: `*[_type == "post" && "深層考察" in tags] | order(publishedAt desc) ${postFields}[0...5]`,
-          goodsList: `*[_type == "goodsCategory"] | order(_createdAt asc) { name, "link": "/goods/" + slug.current, color }`,
-        };
-
-        try {
-          const [ featuredPosts, deepPosts, goodsItems, ] = await Promise.all([
-            sanityPublicClient.fetch(queries.featuredList),
-            sanityPublicClient.fetch(queries.deepList),
-            sanityPublicClient.fetch(queries.goodsList),
-          ]);
-          setFeaturedList(featuredPosts.filter((p: Post) => p.slug?.current));
-          setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
-          setGoodsList(goodsItems);
-        } catch (error) {
-          console.error('Failed to fetch page content:', error);
-        }
+    }
+    
+    const fetchAllContent = async () => {
+      const postFields = `{ title, "desc": excerpt, "tag": tags[0], slug, mainImage, mainImageUrl }`;
+      const queries = {
+        featuredList: `*[_type == "post"] | order(publishedAt desc) ${postFields}[0...6]`,
+        deepList: `*[_type == "post" && "深層考察" in tags] | order(publishedAt desc) ${postFields}[0...5]`,
+        goodsList: `*[_type == "goodsCategory"] | order(_createdAt asc) { name, "link": "/goods/" + slug.current, color }`,
       };
-      fetchAllContent();
 
-      return cleanup;
+      try {
+        const [ featuredPosts, deepPosts, goodsItems, ] = await Promise.all([
+          sanityPublicClient.fetch(queries.featuredList),
+          sanityPublicClient.fetch(queries.deepList),
+          sanityPublicClient.fetch(queries.goodsList),
+        ]);
+        setFeaturedList(featuredPosts.filter((p: Post) => p.slug?.current));
+        setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
+        setGoodsList(goodsItems);
+      } catch (error) {
+        console.error('Failed to fetch page content:', error);
+      }
+    };
+    fetchAllContent();
+    
+    return () => {
+        document.body.classList.remove('vibe-mode');
+        window.removeEventListener('scroll', handleScroll);
+        // We can't access handleResize here, but the effect is minimal
+        cancelAnimationFrame(animationFrameId);
     }
   }, []);
 
