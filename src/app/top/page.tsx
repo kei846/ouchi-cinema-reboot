@@ -95,38 +95,36 @@ export default function TopPage() {
       let particles: Particle[] = [];
       let shootingStars: ShootingStar[] = [];
 
-            class Particle {
-                x: number; y: number; size: number; speedX: number; speedY: number;
-                baseOpacity: number; opacity: number; opacitySpeed: number;
-                constructor() {
-                    const currentWidth = (typeof window !== 'undefined' && canvas) ? canvas.width : 0;
-                    const currentHeight = (typeof window !== 'undefined' && canvas) ? canvas.height : 0;
-                    this.x = Math.random() * currentWidth;
-                    this.y = Math.random() * currentHeight;
-                    this.size = Math.random() * 1.5 + 0.5;
-                    this.speedX = (Math.random() * 0.4 - 0.2);
-                    this.speedY = (Math.random() * 0.4 - 0.2);
-                    this.baseOpacity = Math.random() * 0.4 + 0.1;
-                    this.opacity = this.baseOpacity;
-                    this.opacitySpeed = Math.random() * 0.02 + 0.01;
-                          update() {
+      class Particle {
+          x: number; y: number; size: number; speedX: number; speedY: number;
+          baseOpacity: number; opacity: number; opacitySpeed: number;
+          constructor() {
+              const currentWidth = (typeof window !== 'undefined' && canvas) ? canvas.width : 0;
+              const currentHeight = (typeof window !== 'undefined' && canvas) ? canvas.height : 0;
+              this.x = Math.random() * currentWidth;
+              this.y = Math.random() * currentHeight;
+              this.size = Math.random() * 1.5 + 0.5;
+              this.speedX = (Math.random() * 0.4 - 0.2);
+              this.speedY = (Math.random() * 0.4 - 0.2);
+              this.baseOpacity = Math.random() * 0.4 + 0.1;
+              this.opacity = this.baseOpacity;
+              this.opacitySpeed = Math.random() * 0.02 + 0.01;
+          }
+          update() {
+              const currentWidth = (typeof window !== 'undefined' && canvas) ? canvas.width : 0;
+              const currentHeight = (typeof window !== 'undefined' && canvas) ? canvas.height : 0;
               this.x += this.speedX;
               this.y += this.speedY;
               this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-
-              const currentCanvas = typeof document !== 'undefined' ? document.querySelector('canvas') : null;
-              const w = currentCanvas?.width ?? 0;
-              const h = currentCanvas?.height ?? 0;
-
-              if (this.x < 0 || this.x > w) { this.x = Math.random() * w; }
-              if (this.y < 0 || this.y > h) { this.y = Math.random() * h; }
+              if (this.x < 0 || this.x > currentWidth) { this.x = Math.random() * currentWidth; }
+              if (this.y < 0 || this.y > currentHeight) { this.y = Math.random() * currentHeight; }
           }
-        draw() {
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
+          draw() {
+              ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+              ctx.fill();
+          }
       }
 
       class ShootingStar {
