@@ -103,8 +103,10 @@ export default function TopPage() {
           x: number; y: number; size: number; speedX: number; speedY: number;
           baseOpacity: number; opacity: number; opacitySpeed: number;
           constructor() {
-              this.x = Math.random() * canvas.width;
-              this.y = Math.random() * canvas.height;
+              const currentWidth = typeof canvas !== 'undefined' && canvas ? canvas.width : 0;
+              const currentHeight = typeof canvas !== 'undefined' && canvas ? canvas.height : 0;
+              this.x = Math.random() * currentWidth;
+              this.y = Math.random() * currentHeight;
               this.size = Math.random() * 1.5 + 0.5;
               this.speedX = (Math.random() * 0.4 - 0.2);
               this.speedY = (Math.random() * 0.4 - 0.2);
