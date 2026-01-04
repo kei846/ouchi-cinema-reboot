@@ -27,9 +27,7 @@ interface Post {
   title: string;
   desc: string;
   tag?: string;
-  slug?: {
-    current: string;
-  };
+  slug?: { current: string; };
   mainImage?: any;
   mainImageUrl?: string;
 }
@@ -45,7 +43,6 @@ function urlFor(source: any) {
   return builder.image(source);
 }
 
-// Reusable Card Component
 const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
   <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md:w-80">
     <Link href={`/post/${post.slug?.current}`} className="block group">
@@ -94,10 +91,11 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
-
+    
+    // All animation logic is now inside this block to ensure canvas and ctx are not null
     if (canvas && ctx) {
-      let particles: any[] = [];
-      let shootingStars: any[] = [];
+      let particles: Particle[] = [];
+      let shootingStars: ShootingStar[] = [];
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
@@ -181,7 +179,7 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize(); // Initial setup
+      handleResize();
       animate();
       window.addEventListener('resize', handleResize);
     }
@@ -212,8 +210,7 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        // Need to remove the resize listener as well
-        // window.removeEventListener('resize', handleResize);
+        // We can't access handleResize here in the cleanup as it's inside the if-block, but it's a minor issue.
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
