@@ -109,13 +109,18 @@ export default function TopPage() {
                     this.baseOpacity = Math.random() * 0.4 + 0.1;
                     this.opacity = this.baseOpacity;
                     this.opacitySpeed = Math.random() * 0.02 + 0.01;
-                }        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-            if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
-            if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
-        }
+                          update() {
+              this.x += this.speedX;
+              this.y += this.speedY;
+              this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
+
+              const currentCanvas = typeof document !== 'undefined' ? document.querySelector('canvas') : null;
+              const w = currentCanvas?.width ?? 0;
+              const h = currentCanvas?.height ?? 0;
+
+              if (this.x < 0 || this.x > w) { this.x = Math.random() * w; }
+              if (this.y < 0 || this.y > h) { this.y = Math.random() * h; }
+          }
         draw() {
             ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
             ctx.beginPath();
