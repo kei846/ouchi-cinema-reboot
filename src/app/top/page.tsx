@@ -93,16 +93,11 @@ export default function TopPage() {
     const ctx = canvas?.getContext('2d');
 
     let animationFrameId: number;
+    let resizeTimeout: NodeJS.Timeout;
 
     if (canvas && ctx) {
       let particles: any[] = [];
       let shootingStars: any[] = [];
-
-      const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = document.documentElement.scrollHeight;
-        init();
-      }
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
@@ -121,8 +116,8 @@ export default function TopPage() {
               this.x += this.speedX;
               this.y += this.speedY;
               this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-              if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
-              if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+              if (this.x < 0 || this.x > canvas.width) this.x = Math.random() * canvas.width;
+              if (this.y < 0 || this.y > canvas.height) this.y = Math.random() * canvas.height;
           }
           draw() {
               ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
@@ -177,41 +172,50 @@ export default function TopPage() {
           animationFrameId = requestAnimationFrame(animate);
       }
       
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-      animate();
-    }
-    
-    const fetchAllContent = async () => {
-      const postFields = `{ title, "desc": excerpt, "tag": tags[0], slug, mainImage, mainImageUrl }`;
-      const queries = {
-        featuredList: `*[_type == "post"] | order(publishedAt desc) ${postFields}[0...6]`,
-        deepList: `*[_type == "post" && "深層考察" in tags] | order(publishedAt desc) ${postFields}[0...5]`,
-        goodsList: `*[_type == "goodsCategory"] | order(_createdAt asc) { name, "link": "/goods/" + slug.current, color }`,
-      };
-
-      try {
-        const [ featuredPosts, deepPosts, goodsItems, ] = await Promise.all([
-          sanityPublicClient.fetch(queries.featuredList),
-          sanityPublicClient.fetch(queries.deepList),
-          sanityPublicClient.fetch(queries.goodsList),
-        ]);
-
-        setFeaturedList(featuredPosts.filter((p: Post) => p.slug?.current));
-        setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
-        setGoodsList(goodsItems);
-      } catch (error) {
-        console.error('Failed to fetch page content:', error);
+      const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          canvas.width = window.innerWidth;
+          canvas.height = document.documentElement.scrollHeight;
+          init();
+        }, 100);
       }
-    };
-    fetchAllContent();
-    
-    return () => {
-        document.body.classList.remove('vibe-mode');
-        window.removeEventListener('scroll', handleScroll);
-        // Need to remove the resize listener as well
-        // window.removeEventListener('resize', resizeCanvas);
-        cancelAnimationFrame(animationFrameId);
+      
+      handleResize(); // Initial setup
+      animate();
+      window.addEventListener('resize', handleResize);
+
+      const cleanup = () => {
+          window.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('resize', handleResize);
+          cancelAnimationFrame(animationFrameId);
+          document.body.classList.remove('vibe-mode');
+      }
+      
+      const fetchAllContent = async () => {
+        const postFields = `{ title, "desc": excerpt, "tag": tags[0], slug, mainImage, mainImageUrl }`;
+        const queries = {
+          featuredList: `*[_type == "post"] | order(publishedAt desc) ${postFields}[0...6]`,
+          deepList: `*[_type == "post" && "深層考察" in tags] | order(publishedAt desc) ${postFields}[0...5]`,
+          goodsList: `*[_type == "goodsCategory"] | order(_createdAt asc) { name, "link": "/goods/" + slug.current, color }`,
+        };
+
+        try {
+          const [ featuredPosts, deepPosts, goodsItems, ] = await Promise.all([
+            sanityPublicClient.fetch(queries.featuredList),
+            sanityPublicClient.fetch(queries.deepList),
+            sanityPublicClient.fetch(queries.goodsList),
+          ]);
+          setFeaturedList(featuredPosts.filter((p: Post) => p.slug?.current));
+          setDeepList(deepPosts.filter((p: Post) => p.slug?.current));
+          setGoodsList(goodsItems);
+        } catch (error) {
+          console.error('Failed to fetch page content:', error);
+        }
+      };
+      fetchAllContent();
+
+      return cleanup;
     }
   }, []);
 
