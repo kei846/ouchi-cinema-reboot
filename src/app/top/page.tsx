@@ -64,7 +64,6 @@ const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
   </motion.div>
 );
 
-
 export default function TopPage() {
   const [featuredList, setFeaturedList] = useState<Post[]>([]);
   const [deepList, setDeepList] = useState<Post[]>([]);
@@ -91,11 +90,10 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
-    
-    // All animation logic is now inside this block to ensure canvas and ctx are not null
+
     if (canvas && ctx) {
-      let particles: Particle[] = [];
-      let shootingStars: ShootingStar[] = [];
+      let particles: any[] = [];
+      let shootingStars: any[] = [];
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
@@ -179,7 +177,7 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize();
+      handleResize(); // Initial setup
       animate();
       window.addEventListener('resize', handleResize);
     }
@@ -210,7 +208,8 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        // We can't access handleResize here in the cleanup as it's inside the if-block, but it's a minor issue.
+        // Need to remove the resize listener as well
+        // window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
