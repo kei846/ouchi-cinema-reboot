@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity';
+import {MoonIcon, SparklesIcon} from '@sanity/icons';
 
 export default defineType({
   name: 'post',
@@ -41,6 +42,19 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'layoutStyle',
+      title: 'レイアウトスタイル',
+      type: 'string',
+      options: {
+        list: [
+          { title: '通常レイアウト', value: 'default' },
+          { title: 'Vlog風レイアウト', value: 'vibe' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'default',
+    }),
+    defineField({
       name: 'mainImage',
       title: 'メイン画像',
       type: 'image',
@@ -79,5 +93,19 @@ export default defineType({
       initialValue: () => new Date().toISOString(),
     }),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      theme: 'theme',
+      media: 'mainImage',
+    },
+    prepare({ title, theme, media }) {
+      const icon = theme === 'mushin' ? MoonIcon : theme === 'toi' ? SparklesIcon : undefined;
+      return {
+        title: title,
+        subtitle: theme === 'mushin' ? '無心の夜' : theme === 'toi' ? '問いの夜' : '',
+        media: icon || media,
+      };
+    },
+  },
 });
-
