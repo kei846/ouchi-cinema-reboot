@@ -20,7 +20,10 @@ export function RandomArticleButton({ mushinSlugs, toiSlugs }: RandomArticleButt
   const router = useRouter();
 
   const handleRandomRedirect = (slugs: string[]) => {
-    if (slugs.length === 0) return;
+    if (slugs.length === 0) {
+      alert('対象となる記事がまだありません。');
+      return;
+    }
     const randomSlug = slugs[Math.floor(Math.random() * slugs.length)];
     router.push(`/post/${randomSlug}`);
   };
