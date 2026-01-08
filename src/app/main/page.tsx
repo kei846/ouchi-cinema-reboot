@@ -2,6 +2,8 @@
 import { sanityPublicClient } from '@/sanity/lib/client';
 import { RandomArticleButton } from './RandomArticleButton';
 
+export const dynamic = 'force-dynamic';
+
 interface Slug {
   slug: {
     current: string;
