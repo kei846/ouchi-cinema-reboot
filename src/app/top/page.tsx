@@ -99,9 +99,12 @@ export default function TopPage() {
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
           baseOpacity: number; opacity: number; opacitySpeed: number;
-          constructor(canvasWidth: number, canvasHeight: number) { // Accepts w, h
-              this.x = Math.random() * canvasWidth;
-              this.y = Math.random() * canvasHeight;
+          canvasWidth: number; canvasHeight: number;
+          constructor(canvasWidth: number, canvasHeight: number) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.x = Math.random() * this.canvasWidth;
+              this.y = Math.random() * this.canvasHeight;
               this.size = Math.random() * 1.5 + 0.5;
               this.speedX = (Math.random() * 0.4 - 0.2);
               this.speedY = (Math.random() * 0.4 - 0.2);
@@ -113,8 +116,8 @@ export default function TopPage() {
               this.x += this.speedX;
               this.y += this.speedY;
               this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-              if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
-              if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+              if (this.x < 0 || this.x > this.canvasWidth) { this.x = Math.random() * this.canvasWidth; }
+              if (this.y < 0 || this.y > this.canvasHeight) { this.y = Math.random() * this.canvasHeight; }
           }
           draw() {
               ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
@@ -126,8 +129,11 @@ export default function TopPage() {
 
       class ShootingStar {
           x: number; y: number; len: number; speed: number; size: number;
-          constructor(canvasWidth: number, canvasHeight: number) { // Accepts w, h
-              this.x = Math.random() * canvasWidth * 1.5;
+          canvasWidth: number; canvasHeight: number;
+          constructor(canvasWidth: number, canvasHeight: number) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.x = Math.random() * this.canvasWidth * 1.5;
               this.y = 0;
               this.len = Math.random() * 150 + 50;
               this.speed = Math.random() * 8 + 8;
