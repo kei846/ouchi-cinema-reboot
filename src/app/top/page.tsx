@@ -90,12 +90,10 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
-    
-    let handleResize: () => void = () => {};
 
     if (canvas && ctx) {
-      let particles: Particle[] = [];
-      let shootingStars: ShootingStar[] = [];
+      let particles: any[] = [];
+      let shootingStars: any[] = [];
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
@@ -170,7 +168,7 @@ export default function TopPage() {
           animationFrameId = requestAnimationFrame(animate);
       }
       
-      handleResize = () => {
+      const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
           canvas.width = window.innerWidth;
@@ -179,7 +177,7 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize();
+      handleResize(); // Initial setup
       animate();
       window.addEventListener('resize', handleResize);
     }
@@ -210,7 +208,8 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
+        // Need to remove the resize listener as well
+        // window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
