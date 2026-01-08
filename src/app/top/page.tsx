@@ -64,6 +64,7 @@ const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
   </motion.div>
 );
 
+
 export default function TopPage() {
   const [featuredList, setFeaturedList] = useState<Post[]>([]);
   const [deepList, setDeepList] = useState<Post[]>([]);
@@ -91,16 +92,19 @@ export default function TopPage() {
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
 
-    if (canvas && ctx) {
-      let particles: any[] = [];
-      let shootingStars: any[] = [];
+    if (canvas && ctx) { // Only proceed if canvas and ctx are available
+      let particles: Particle[] = [];
+      let shootingStars: ShootingStar[] = [];
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
           baseOpacity: number; opacity: number; opacitySpeed: number;
-          constructor() {
-              this.x = Math.random() * canvas.width;
-              this.y = Math.random() * canvas.height;
+          canvasWidth: number; canvasHeight: number; // Store dimensions
+          constructor(canvasWidth: number, canvasHeight: number) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.x = Math.random() * this.canvasWidth;
+              this.y = Math.random() * this.canvasHeight;
               this.size = Math.random() * 1.5 + 0.5;
               this.speedX = (Math.random() * 0.4 - 0.2);
               this.speedY = (Math.random() * 0.4 - 0.2);
@@ -112,8 +116,8 @@ export default function TopPage() {
               this.x += this.speedX;
               this.y += this.speedY;
               this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-              if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
-              if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+              if (this.x < 0 || this.x > this.canvasWidth) { this.x = Math.random() * this.canvasWidth; }
+              if (this.y < 0 || this.y > this.canvasHeight) { this.y = Math.random() * this.canvasHeight; }
           }
           draw() {
               ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
@@ -125,8 +129,11 @@ export default function TopPage() {
 
       class ShootingStar {
           x: number; y: number; len: number; speed: number; size: number;
-          constructor() {
-              this.x = Math.random() * canvas.width * 1.5;
+          canvasWidth: number; canvasHeight: number; // Store dimensions
+          constructor(canvasWidth: number, canvasHeight: number) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.x = Math.random() * this.canvasWidth * 1.5;
               this.y = 0;
               this.len = Math.random() * 150 + 50;
               this.speed = Math.random() * 8 + 8;
@@ -135,11 +142,11 @@ export default function TopPage() {
           update() { this.x -= this.speed; this.y += this.speed; }
           draw() {
               ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-              ctx.lineWidth = this.size;
-              ctx.beginPath();
-              ctx.moveTo(this.x, this.y);
-              ctx.lineTo(this.x - this.len, this.y + this.len);
-              ctx.stroke();
+              this.ctx.lineWidth = this.size;
+              this.ctx.beginPath();
+              this.ctx.moveTo(this.x, this.y);
+              this.ctx.lineTo(this.x - this.len, this.y + this.len);
+              this.ctx.stroke();
           }
       }
 
@@ -147,7 +154,7 @@ export default function TopPage() {
           particles = [];
           const numberOfParticles = window.innerWidth / 25;
           for (let i = 0; i < numberOfParticles; i++) {
-              particles.push(new Particle());
+              particles.push(new Particle(canvas.width, canvas.height));
           }
       }
 
@@ -155,7 +162,7 @@ export default function TopPage() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           particles.forEach(p => { p.update(); p.draw(); });
           if (Math.random() < 0.02 && shootingStars.length < 3) {
-              shootingStars.push(new ShootingStar());
+              shootingStars.push(new ShootingStar(canvas.width, canvas.height));
           }
           for(let i = shootingStars.length - 1; i >= 0; i--) {
               const s = shootingStars[i];
