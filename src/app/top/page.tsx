@@ -44,7 +44,7 @@ function urlFor(source: any) {
 }
 
 const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
-  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md:w-80">
+  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md-w80">
     <Link href={`/post/${post.slug?.current}`} className="block group">
       <article className="rounded-xl border border-white/10 bg-white/[0.04] hover:border-white/25 transition-all duration-300 h-full flex flex-col">
         <div className="relative w-full aspect-video rounded-t-xl overflow-hidden">
@@ -91,10 +91,8 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
-    
-    let handleResize = () => {};
 
-    if (canvas && ctx) {
+    if (canvas && ctx) { // Only proceed if canvas and ctx are available
       let particles: Particle[] = [];
       let shootingStars: ShootingStar[] = [];
 
@@ -102,7 +100,6 @@ export default function TopPage() {
           x: number; y: number; size: number; speedX: number; speedY: number;
           baseOpacity: number; opacity: number; opacitySpeed: number;
           canvasWidth: number; canvasHeight: number;
-
           constructor(canvasWidth: number, canvasHeight: number) {
               this.canvasWidth = canvasWidth;
               this.canvasHeight = canvasHeight;
@@ -147,9 +144,9 @@ export default function TopPage() {
               ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
               ctx.lineWidth = this.size;
               ctx.beginPath();
-              ctx.moveTo(this.x, this.y);
-              ctx.lineTo(this.x - this.len, this.y + this.len);
-              ctx.stroke();
+              this.ctx.moveTo(this.x, this.y);
+              this.ctx.lineTo(this.x - this.len, this.y + this.len);
+              this.ctx.stroke();
           }
       }
 
@@ -178,7 +175,7 @@ export default function TopPage() {
           animationFrameId = requestAnimationFrame(animate);
       }
       
-      handleResize = () => {
+      const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
           canvas.width = window.innerWidth;
@@ -187,7 +184,7 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize();
+      handleResize(); // Initial setup
       animate();
       window.addEventListener('resize', handleResize);
     }
@@ -218,7 +215,8 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
+        // Need to remove the resize listener as well
+        // window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
