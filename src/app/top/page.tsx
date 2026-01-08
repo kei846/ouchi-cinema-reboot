@@ -44,7 +44,7 @@ function urlFor(source: any) {
 }
 
 const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
-  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md:w-80">
+  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md-w-80">
     <Link href={`/post/${post.slug?.current}`} className="block group">
       <article className="rounded-xl border border-white/10 bg-white/[0.04] hover:border-white/25 transition-all duration-300 h-full flex flex-col">
         <div className="relative w-full aspect-video rounded-t-xl overflow-hidden">
@@ -90,94 +90,87 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
+    
+    let handleResize: () => void = () => {};
 
     if (canvas && ctx) {
       let particles: Particle[] = [];
       let shootingStars: ShootingStar[] = [];
 
       class Particle {
-        x: number; y: number; size: number; speedX: number; speedY: number;
-        baseOpacity: number; opacity: number; opacitySpeed: number;
-        canvas: HTMLCanvasElement;
-        ctx: CanvasRenderingContext2D;
-
-        constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-          this.canvas = canvas;
-          this.ctx = ctx;
-          this.x = Math.random() * this.canvas.width;
-          this.y = Math.random() * this.canvas.height;
-          this.size = Math.random() * 1.5 + 0.5;
-          this.speedX = (Math.random() * 0.4 - 0.2);
-          this.speedY = (Math.random() * 0.4 - 0.2);
-          this.baseOpacity = Math.random() * 0.4 + 0.1;
-          this.opacity = this.baseOpacity;
-          this.opacitySpeed = Math.random() * 0.02 + 0.01;
-        }
-        update() {
-          this.x += this.speedX;
-          this.y += this.speedY;
-          this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
-          if (this.x < 0 || this.x > this.canvas.width) { this.x = Math.random() * this.canvas.width; }
-          if (this.y < 0 || this.y > this.canvas.height) { this.y = Math.random() * this.canvas.height; }
-        }
-        draw() {
-          this.ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-          this.ctx.beginPath();
-          this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          this.ctx.fill();
-        }
+          x: number; y: number; size: number; speedX: number; speedY: number;
+          baseOpacity: number; opacity: number; opacitySpeed: number;
+          constructor() {
+              this.x = Math.random() * canvas.width;
+              this.y = Math.random() * canvas.height;
+              this.size = Math.random() * 1.5 + 0.5;
+              this.speedX = (Math.random() * 0.4 - 0.2);
+              this.speedY = (Math.random() * 0.4 - 0.2);
+              this.baseOpacity = Math.random() * 0.4 + 0.1;
+              this.opacity = this.baseOpacity;
+              this.opacitySpeed = Math.random() * 0.02 + 0.01;
+          }
+          update() {
+              this.x += this.speedX;
+              this.y += this.speedY;
+              this.opacity = this.baseOpacity + (Math.sin(Date.now() * this.opacitySpeed) * (this.baseOpacity / 2));
+              if (this.x < 0 || this.x > canvas.width) { this.x = Math.random() * canvas.width; }
+              if (this.y < 0 || this.y > canvas.height) { this.y = Math.random() * canvas.height; }
+          }
+          draw() {
+              ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+              ctx.fill();
+          }
       }
 
       class ShootingStar {
-        x: number; y: number; len: number; speed: number; size: number;
-        canvas: HTMLCanvasElement;
-        ctx: CanvasRenderingContext2D;
-        constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-          this.canvas = canvas;
-          this.ctx = ctx;
-          this.x = Math.random() * this.canvas.width * 1.5;
-          this.y = 0;
-          this.len = Math.random() * 150 + 50;
-          this.speed = Math.random() * 8 + 8;
-          this.size = Math.random() * 1.2 + 0.4;
-        }
-        update() { this.x -= this.speed; this.y += this.speed; }
-        draw() {
-          this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-          this.ctx.lineWidth = this.size;
-          this.ctx.beginPath();
-          this.ctx.moveTo(this.x, this.y);
-          this.ctx.lineTo(this.x - this.len, this.y + this.len);
-          this.ctx.stroke();
-        }
+          x: number; y: number; len: number; speed: number; size: number;
+          constructor() {
+              this.x = Math.random() * canvas.width * 1.5;
+              this.y = 0;
+              this.len = Math.random() * 150 + 50;
+              this.speed = Math.random() * 8 + 8;
+              this.size = Math.random() * 1.2 + 0.4;
+          }
+          update() { this.x -= this.speed; this.y += this.speed; }
+          draw() {
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+              ctx.lineWidth = this.size;
+              ctx.beginPath();
+              ctx.moveTo(this.x, this.y);
+              ctx.lineTo(this.x - this.len, this.y + this.len);
+              ctx.stroke();
+          }
       }
 
       const init = () => {
-        particles = [];
-        const numberOfParticles = window.innerWidth / 25;
-        for (let i = 0; i < numberOfParticles; i++) {
-          particles.push(new Particle(canvas, ctx));
-        }
+          particles = [];
+          const numberOfParticles = window.innerWidth / 25;
+          for (let i = 0; i < numberOfParticles; i++) {
+              particles.push(new Particle());
+          }
       }
 
       const animate = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        if (Math.random() < 0.02 && shootingStars.length < 3) {
-          shootingStars.push(new ShootingStar(canvas, ctx));
-        }
-        for(let i = shootingStars.length - 1; i >= 0; i--) {
-          const s = shootingStars[i];
-          if (s.x < -s.len || s.y > canvas.height) {
-            shootingStars.splice(i, 1);
-          } else {
-            s.update(); s.draw();
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => { p.update(); p.draw(); });
+          if (Math.random() < 0.02 && shootingStars.length < 3) {
+              shootingStars.push(new ShootingStar());
           }
-        }
-        animationFrameId = requestAnimationFrame(animate);
+          for(let i = shootingStars.length - 1; i >= 0; i--) {
+              const s = shootingStars[i];
+              if (s.x < -s.len || s.y > canvas.height) {
+                  shootingStars.splice(i, 1);
+              } else {
+                  s.update(); s.draw();
+              }
+          }
+          animationFrameId = requestAnimationFrame(animate);
       }
       
-      const handleResize = () => {
+      handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
           canvas.width = window.innerWidth;
@@ -217,7 +210,7 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        // We can't access handleResize here, but it's a minor issue.
+        window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
