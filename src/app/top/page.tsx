@@ -44,7 +44,7 @@ function urlFor(source: any) {
 }
 
 const ArticleCard = ({ post, index }: { post: Post, index: number }) => (
-  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md-w80">
+  <motion.div key={index} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={index} className="flex-none w-72 md:w-80">
     <Link href={`/post/${post.slug?.current}`} className="block group">
       <article className="rounded-xl border border-white/10 bg-white/[0.04] hover:border-white/25 transition-all duration-300 h-full flex flex-col">
         <div className="relative w-full aspect-video rounded-t-xl overflow-hidden">
@@ -91,17 +91,25 @@ export default function TopPage() {
 
     let animationFrameId: number;
     let resizeTimeout: NodeJS.Timeout;
+    
+    let handleResize = () => {};
 
-    if (canvas && ctx) { // Only proceed if canvas and ctx are available
+    if (canvas && ctx) {
       let particles: Particle[] = [];
       let shootingStars: ShootingStar[] = [];
 
       class Particle {
           x: number; y: number; size: number; speedX: number; speedY: number;
           baseOpacity: number; opacity: number; opacitySpeed: number;
-          constructor(public canvasWidth: number, public canvasHeight: number) { // Accepts w, h
-              this.x = Math.random() * canvasWidth;
-              this.y = Math.random() * canvasHeight;
+          canvasWidth: number; canvasHeight: number;
+          ctx: CanvasRenderingContext2D;
+
+          constructor(canvasWidth: number, canvasHeight: number, context: CanvasRenderingContext2D) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.ctx = context;
+              this.x = Math.random() * this.canvasWidth;
+              this.y = Math.random() * this.canvasHeight;
               this.size = Math.random() * 1.5 + 0.5;
               this.speedX = (Math.random() * 0.4 - 0.2);
               this.speedY = (Math.random() * 0.4 - 0.2);
@@ -117,17 +125,22 @@ export default function TopPage() {
               if (this.y < 0 || this.y > this.canvasHeight) { this.y = Math.random() * this.canvasHeight; }
           }
           draw() {
-              ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-              ctx.beginPath();
-              ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-              ctx.fill();
+              this.ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+              this.ctx.beginPath();
+              this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+              this.ctx.fill();
           }
       }
 
       class ShootingStar {
           x: number; y: number; len: number; speed: number; size: number;
-          constructor(public canvasWidth: number, public canvasHeight: number) { // Accepts w, h
-              this.x = Math.random() * canvasWidth * 1.5;
+          canvasWidth: number; canvasHeight: number;
+          ctx: CanvasRenderingContext2D;
+          constructor(canvasWidth: number, canvasHeight: number, context: CanvasRenderingContext2D) {
+              this.canvasWidth = canvasWidth;
+              this.canvasHeight = canvasHeight;
+              this.ctx = context;
+              this.x = Math.random() * this.canvasWidth * 1.5;
               this.y = 0;
               this.len = Math.random() * 150 + 50;
               this.speed = Math.random() * 8 + 8;
@@ -135,7 +148,7 @@ export default function TopPage() {
           }
           update() { this.x -= this.speed; this.y += this.speed; }
           draw() {
-              ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+              this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
               this.ctx.lineWidth = this.size;
               this.ctx.beginPath();
               this.ctx.moveTo(this.x, this.y);
@@ -148,7 +161,7 @@ export default function TopPage() {
           particles = [];
           const numberOfParticles = window.innerWidth / 25;
           for (let i = 0; i < numberOfParticles; i++) {
-              particles.push(new Particle(canvas.width, canvas.height));
+              particles.push(new Particle(canvas.width, canvas.height, ctx));
           }
       }
 
@@ -156,7 +169,7 @@ export default function TopPage() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           particles.forEach(p => { p.update(); p.draw(); });
           if (Math.random() < 0.02 && shootingStars.length < 3) {
-              shootingStars.push(new ShootingStar(canvas.width, canvas.height));
+              shootingStars.push(new ShootingStar(canvas.width, canvas.height, ctx));
           }
           for(let i = shootingStars.length - 1; i >= 0; i--) {
               const s = shootingStars[i];
@@ -169,7 +182,7 @@ export default function TopPage() {
           animationFrameId = requestAnimationFrame(animate);
       }
       
-      const handleResize = () => {
+      handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
           canvas.width = window.innerWidth;
@@ -178,7 +191,7 @@ export default function TopPage() {
         }, 100);
       }
       
-      handleResize(); // Initial setup
+      handleResize();
       animate();
       window.addEventListener('resize', handleResize);
     }
@@ -209,8 +222,7 @@ export default function TopPage() {
     return () => {
         document.body.classList.remove('vibe-mode');
         window.removeEventListener('scroll', handleScroll);
-        // Need to remove the resize listener as well
-        // window.removeEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
         cancelAnimationFrame(animationFrameId);
     }
   }, []);
