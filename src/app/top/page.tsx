@@ -96,7 +96,7 @@ export default function TopPage() {
     const canvas = document.querySelector('canvas');
     const ctx = canvas?.getContext('2d');
 
-    let animationFrameId: number;
+    let animationFrameId: number = 0;
     let resizeTimeout: NodeJS.Timeout;
     let handleResize = () => {};
 
