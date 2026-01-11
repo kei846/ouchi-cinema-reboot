@@ -5,14 +5,13 @@ const apiVersion = '2024-05-01' // Sanity v4と互換性のある日付
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!
 
-export const sanityPublicClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-  perspective: 'published',
-  stega: {
-    enabled: process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview',
+export const sanityPublicClient = createClient({                                            
+  projectId,                                  
+  dataset,                                    
+  apiVersion,                                 
+  useCdn: false,                               
+  perspective: 'published',                   
+  stega: {    enabled: process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview',
     studioUrl: '/studio',
   },
 })
