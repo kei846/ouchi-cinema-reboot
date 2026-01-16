@@ -9,9 +9,6 @@ export const sanityPublicClient = createClient({
   projectId,                                  
   dataset,                                    
   apiVersion,                                 
-  useCdn: false,                               
-  perspective: 'published',                   
-  stega: {    enabled: process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview',
-    studioUrl: '/studio',
-  },
+  useCdn: true, // Re-enable CDN for production performance
+  perspective: 'published',
 })
