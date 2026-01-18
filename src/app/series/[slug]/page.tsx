@@ -79,11 +79,6 @@ export default async function SeriesPage({ params }: { params: { slug: string } 
 
   return (
     <main className="relative min-h-screen bg-black text-white">
-      <pre className="absolute top-0 left-0 bg-red-900 text-white p-4 z-50 text-xs">
-        DEBUG INFO (This is temporary):<br />
-        PROJECT_ID: {process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'NOT SET'}<br />
-        DATASET: {process.env.NEXT_PUBLIC_SANITY_DATASET || 'NOT SET'}
-      </pre>
       <div className="absolute inset-0 bg-gradient-to-b from-[#05060a] via-[#0a0b12] to-black" />
       
       <header className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 py-5 flex items-center justify-between">
