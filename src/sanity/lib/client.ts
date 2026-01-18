@@ -1,5 +1,5 @@
 // src/sanity/lib/client.ts
-import { createClient } from '@sanity/client'
+import { createClient } from 'next-sanity'
 
 const apiVersion = '2024-05-01'
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!
